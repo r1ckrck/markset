@@ -1,35 +1,92 @@
 # markset
 
-A Claude Code skill that turns markdown into polished PDFs — authored by AI, rendered with a fixed design grammar.
+A Claude Code skill that turns Markdown into polished PDFs — authored by AI, rendered with a fixed design grammar.
 
----
+AI writes great structured content. The problem is markdown carries no design. markset solves this: define the design once in a LaTeX template, let Claude write to that grammar. Every document looks consistent and intentional — no manual formatting.
 
-## Why This Exists
-
-AI is genuinely good at writing structured content in markdown. The problem is that markdown doesn't carry any design — when you share it, you're sharing a plain text file. Converting it to a Word document or pasting it into a design tool defeats the purpose.
-
-markset takes a different approach: define a strict design grammar once (typography, layout, colors, spacing, heading hierarchy), encode it in a LaTeX template, and let Claude write to that grammar. Every document Claude authors through this skill looks the same — consistent, intentional, shareable — without any manual formatting.
-
-The workflow is intentionally simple: Claude writes markdown, Claude runs a script, you get a PDF.
-
----
-
-## How It Works
+## How it works
 
 ```
 Markdown  →  Pandoc  →  Tectonic (XeLaTeX)  →  PDF
                ↑               ↑
          Lua filter       LaTeX template
-         (callouts,       (typography,
-          divs)           layout, fonts)
+         (callouts)       (fonts, layout, colors)
 ```
 
-- **Pandoc** converts markdown to LaTeX using a custom template
-- **Tectonic** compiles the LaTeX to PDF (self-contained, no TeX Live install needed)
-- **Lua filter** handles custom markdown syntax (callouts, image placeholders)
-- **LaTeX template** enforces the design — fonts, spacing, colors, heading hierarchy, table styling — all fixed, no overrides possible from markdown
+Ships its own Pandoc and Tectonic binaries. No system tools required beyond bash.
 
-The skill ships its own Pandoc and Tectonic binaries. No system-level tools required beyond bash.
+## Features
+
+- **Cover page** — ASCII art + title block + table of contents on page one
+- **Clickable TOC** — hyperlinked, depth-2, auto-generated
+- **Auto-numbered sections** — H2/H3/H4 numbered automatically, H1 unnumbered
+- **Syntax-highlighted code** — language-aware, monospaced, styled background
+- **Inline code** — highlighted background, styled to match
+- **ASCII art blocks** — rendered in monospace, no line-breaking
+- **Callouts** — `note`, `tip`, `warning`, `important` with left-border accents
+- **Image placeholders** — dashed box with label for images to be added later
+- **Tables** — styled with captions, left-aligned, no manual formatting needed
+- **Clickable links** — colored, no underline
+- **Block quotes** — styled with left-border
+- **Footnotes** — numbered, styled
+- **Running header** — title + version on every page
+- **Page numbers** — bottom-right on every page
+
+---
+
+## Setup
+
+### 1. Clone into your Claude skills folder
+
+```bash
+git clone https://github.com/r1ckrck/markset.git ~/.claude/skills/markset
+```
+
+### 2. Add binaries
+
+Binaries are not included in the repo. Detect your architecture first:
+
+```bash
+uname -m   # arm64 = Apple Silicon · x86_64 = Intel/Linux
+```
+
+**Pandoc** — [github.com/jgm/pandoc/releases/latest](https://github.com/jgm/pandoc/releases/latest)
+Download the standalone binary, then:
+```bash
+cp pandoc-*/bin/pandoc ~/.claude/skills/markset/bin/pandoc-arm64
+chmod +x ~/.claude/skills/markset/bin/pandoc-arm64
+```
+
+**Tectonic** — [github.com/tectonic-typesetting/tectonic/releases/latest](https://github.com/tectonic-typesetting/tectonic/releases/latest)
+Download the single binary, then:
+```bash
+cp tectonic ~/.claude/skills/markset/bin/tectonic-arm64
+chmod +x ~/.claude/skills/markset/bin/tectonic-arm64
+```
+
+> Replace `arm64` with `x86_64` if that's your architecture.
+
+### 3. (macOS only) Clear quarantine if binaries are blocked
+
+```bash
+xattr -d com.apple.quarantine ~/.claude/skills/markset/bin/pandoc-arm64
+xattr -d com.apple.quarantine ~/.claude/skills/markset/bin/tectonic-arm64
+```
+
+---
+
+## Usage
+
+Ask Claude to write a document and build it to PDF — Claude handles both steps once the skill is loaded.
+
+To build manually:
+```bash
+~/.claude/skills/markset/workflow/build-pdf.sh <input.md> [output.pdf]
+```
+
+If no output path is given, the PDF is saved to `build/<filename>.pdf` relative to the input file's parent directory. The folder is created automatically.
+
+> **First build:** Tectonic downloads ~300 MB of LaTeX packages into `cache/`. Subsequent builds are fast.
 
 ---
 
@@ -37,169 +94,33 @@ The skill ships its own Pandoc and Tectonic binaries. No system-level tools requ
 
 | Platform | Architecture | Status |
 |----------|-------------|--------|
-| macOS (Apple Silicon) | arm64 | Supported |
-| macOS (Intel) | x86_64 | Supported |
-| Linux | x86_64 | Supported — add Linux binaries to `bin/` |
-| Linux | arm64 | Not included — add binaries manually |
-| Windows | any | Not supported (build script requires bash) |
-: Platform compatibility
-
-**Runtime requirements:** bash, `uname`, `mktemp`, `ln` — standard on all Unix systems.
-
-**Binary versions tested:**
-- Pandoc 3.x (3.9+)
-- Tectonic 0.15+
+| macOS Apple Silicon | arm64 | Supported |
+| macOS Intel | x86_64 | Supported |
+| Linux | x86_64 | Supported |
+| Windows | any | Not supported |
+: Platform support
 
 ---
 
-## What's Included
+## Customisation
 
-```
-markset/
-├── SKILL.md                  Claude skill definition and capability index
-├── README.md                 This file
-├── bin/
-│   ├── pandoc-arm64          Pandoc binary (macOS Apple Silicon)
-│   ├── pandoc-x86_64         Pandoc binary (macOS Intel / Linux x86_64)
-│   ├── tectonic-arm64        Tectonic binary (macOS Apple Silicon)
-│   └── tectonic-x86_64       Tectonic binary (macOS Intel / Linux x86_64)
-├── templates/
-│   ├── template.tex          LaTeX template (design grammar)
-│   ├── divs.lua              Lua filter for custom syntax
-│   ├── styleguide_md.md      Markdown authoring rules for Claude
-│   └── fonts/                Bundled TTF files (see below)
-├── workflow/
-│   ├── build-pdf.sh          Build script
-│   ├── author-markdown.md    Claude instructions for authoring
-│   └── build-pdf.md          Claude instructions for building
-└── cache/                    Tectonic LaTeX package cache (gitignored)
-```
+| What you want to change | Where to edit |
+|------------------------|---------------|
+| Fonts, colors, spacing, layout, heading style, table styling | `templates/template.tex` |
+| What Markdown constructs Claude can use, document structure rules | `templates/styleguide_md.md` |
+: Customisation reference
 
-**What's not included** (must be added before first use):
-- On Linux: the binaries are macOS builds — replace with Linux builds
-
----
-
-## Setup
-
-### 1. Detect Your Architecture
-
-```bash
-uname -m
-```
-
-| Output | Machine | Binary suffix |
-|--------|---------|--------------|
-| `arm64` | Apple Silicon Mac | `arm64` |
-| `x86_64` | Intel Mac or Linux x86_64 | `x86_64` |
-: Architecture detection
-
----
-
-### 2. Add Binaries
-
-The `bin/` directory needs `pandoc-<arch>` and `tectonic-<arch>`. Choose one method:
-
-#### Download fresh
-
-**Pandoc** — [github.com/jgm/pandoc/releases/latest](https://github.com/jgm/pandoc/releases/latest)
-
-Download the standalone binary for your platform (no installer), then:
-
-```bash
-# macOS arm64 example
-unzip pandoc-*-arm64-macOS.zip
-cp pandoc-*/bin/pandoc .claude/skills/markset/bin/pandoc-arm64
-chmod +x .claude/skills/markset/bin/pandoc-arm64
-```
-
-**Tectonic** — [github.com/tectonic-typesetting/tectonic/releases/latest](https://github.com/tectonic-typesetting/tectonic/releases/latest)
-
-Download the single-binary release for your platform, then:
-
-```bash
-# macOS arm64 example
-tar -xzf tectonic-*-aarch64-apple-darwin.tar.gz
-cp tectonic .claude/skills/markset/bin/tectonic-arm64
-chmod +x .claude/skills/markset/bin/tectonic-arm64
-```
----
-
-### 3. Verify Setup
-
-```bash
-.claude/skills/markset/workflow/build-pdf.sh <input>.md <output>.pdf
-```
-
-Expected:
-
-```
-PDF generated → <output>.pdf
-```
-
----
-
-## Usage
-
-The skill is controlled entirely through Claude. Once SKILL.md is loaded, Claude knows how to:
-
-1. **Author markdown** — following the design grammar in `templates/styleguide_md.md`
-2. **Build a PDF** — by running `workflow/build-pdf.sh` with the correct paths
-
-To use manually:
-
-```bash
-# Build any markdown file to PDF
-.claude/skills/markset/workflow/build-pdf.sh <input.md> <output.pdf>
-
-# Default output (no second arg): build/<filename>.pdf relative to input
-.claude/skills/markset/workflow/build-pdf.sh docs/report.md
-```
-
-**First build:** Tectonic downloads LaTeX packages to `cache/` (~300 MB). Subsequent builds use the local cache and are fast.
+`template.tex` is the single source of all visual decisions — Markdown cannot override it.
+`styleguide_md.md` defines the authoring grammar Claude follows when writing documents.
 
 ---
 
 ## Troubleshooting
 
-**macOS security warning — binary blocked by Gatekeeper**
-
-```bash
-xattr -d com.apple.quarantine .claude/skills/markset/bin/pandoc-arm64
-xattr -d com.apple.quarantine .claude/skills/markset/bin/tectonic-arm64
-```
-
-**Binary not found or not executable**
-
-```
-Error: pandoc binary not found or not executable at .../bin/pandoc-arm64
-```
-
-```bash
-ls -la .claude/skills/markset/bin/
-chmod +x .claude/skills/markset/bin/pandoc-arm64
-```
-
-**Font not found during compilation**
-
-Confirm all 8 TTF files are present in `templates/fonts/`. The build script passes the font directory directly to the LaTeX template — no system font install is needed or used.
-
-**Template not found**
-
-```
-Error: LaTeX template not found at .../templates/template.tex
-```
-
-The skill folder is incomplete. Ensure `templates/template.tex` exists.
-
-**Slow first build**
-
-Expected. Tectonic fetches LaTeX packages on the first run (~300 MB into `cache/`). Transfer `cache/` from another machine to skip this.
-
----
-
-## License
-
-The build scripts and LaTeX template are MIT licensed.
-Fonts (Inter, JetBrains Mono) are licensed under the SIL Open Font License 1.1.
-Pandoc and Tectonic are their own projects with their own licenses — see their respective repositories.
+| Problem | Fix |
+|---------|-----|
+| Binary blocked by Gatekeeper | `xattr -d com.apple.quarantine bin/<binary>` |
+| Binary not executable | `chmod +x bin/<binary>` |
+| Fonts missing | Ensure all 8 TTFs are in `templates/fonts/` |
+| Slow first build | Expected — Tectonic fetches LaTeX packages once |
+: Common issues
