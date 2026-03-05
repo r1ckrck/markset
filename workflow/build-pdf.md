@@ -5,10 +5,10 @@
 Use [`../workflow/build-pdf.sh`](../workflow/build-pdf.sh) directly. No other build tool is needed.
 
 ```bash
-<skill-dir>/workflow/build-pdf.sh <input.md> [output.pdf]
+.claude/skills/markset/workflow/build-pdf.sh <input.md> [output.pdf]
 ```
 
-Where `<skill-dir>` is the absolute path to this skill folder (e.g. `/path/to/project/.claude/skills/markset`).
+The skill is always at `.claude/skills/markset/` relative to the project root. Use this relative path — do not use absolute paths and do not search for the skill folder.
 
 ---
 

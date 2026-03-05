@@ -3,6 +3,8 @@ name: markset
 description: Use this skill whenever the user wants to write a document, draft content, create a report, or produce a PDF. Also trigger when the user asks to build, render, or compile a markdown file. Proactively invoke this skill for any writing or document-creation task.
 ---
 
+> This skill is at `.claude/skills/markset/` relative to the project root. Do not search for it.
+
 # Markset
 
 This skill gives you two capabilities:
