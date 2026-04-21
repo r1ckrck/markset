@@ -2,6 +2,36 @@
 
 Markset converts Markdown to PDF via Pandoc + Tectonic. Binaries and fonts are bundled; no system installs.
 
+## Directory layout
+
+```
+markset/
+├── CLAUDE.md                  This file
+├── SKILL.md                   Skill manifest (trigger description)
+├── README.md                  End-user setup + troubleshooting
+├── bin/                       Pandoc + Tectonic binaries (gitignored, per-arch)
+├── cache/                     Tectonic LaTeX package cache (gitignored, ~300 MB)
+├── build/                     Generated PDFs (gitignored)
+├── docs/                      Markdown sources
+│   ├── index.md               Showcase doc — exercises every template element
+│   └── images/                Image assets (gitignored)
+├── templates/
+│   ├── template.tex           Structural LaTeX — consumes \ms* tokens only
+│   ├── apply-theme.lua        Theme pipeline: validate → compute → emit tokens
+│   ├── divs.lua               Div / code / table / FloatBarrier handling
+│   ├── styleguide_md.md       Markdown authoring rules
+│   └── fonts/                 TTFs (Inter + JetBrains Mono, gitignored)
+├── themes/
+│   ├── README.md              Theme workflow
+│   ├── SCHEMA.md              Full token reference
+│   └── presets/
+│       └── default.yaml       Bundled default theme
+└── workflow/
+    ├── build-pdf.sh           Build script — entry point
+    ├── build-pdf.md           Step-by-step build instructions for Claude
+    └── author-markdown.md     Step-by-step authoring instructions for Claude
+```
+
 ## Architectural invariants
 
 Break any of these and the build logic cracks open.
