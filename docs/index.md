@@ -73,7 +73,7 @@ Captions are mandatory and appear directly after the closing row.
 
 | Axis | Knob | Effect |
 |------|------|--------|
-| Rhythm | `spacing.unit` | All block spacing scales |
+| Rhythm | `rhythm.base` | All block spacing scales |
 | Size | `type.body` | All type scales proportionally |
 | Colour | `accent.primary` | Every accent reference shifts |
 | Layout | `cover.style` | Cover page structure changes |

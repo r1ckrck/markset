@@ -42,8 +42,8 @@ version: "1.0"
 date: "2026-04-21"
 theme_overrides:
   palette.accent.primary: "#ff6600"
-  spacing.unit: 5pt
-  blocks.heading.h1.before: 36pt
+  rhythm.base: 5pt
+  rhythm.h1_before: 36pt
 ---
 ```
 
@@ -56,7 +56,7 @@ Four axes, loosely independent:
 
 | Axis | Governed by | Example change |
 |---|---|---|
-| Rhythm | `spacing.unit` | `4pt → 5pt` scales all block spacing |
+| Rhythm | `rhythm.base` | `4pt → 5pt` scales all block spacing |
 | Size | `type.body`, `type.scale_ratio` | `10pt → 11pt` body scales every text size |
 | Colour | `palette.*` | Replace one hex → palette-wide shift |
 | Layout | `layout.*` | Switch cover style or header content |

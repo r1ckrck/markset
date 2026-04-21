@@ -73,7 +73,8 @@ Add `theme_overrides:` to a document's frontmatter with dot-path keys:
 ```yaml
 theme_overrides:
   palette.accent.primary: "#ff6600"
-  spacing.unit: 5pt
+  rhythm.base: 5pt
+  type.h1: 22pt
 ```
 Overrides win over the theme file, for this document only.
 
