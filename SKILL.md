@@ -29,3 +29,9 @@ Full step-by-step instructions, including the required frontmatter block and com
 Convert any markdown file to PDF using [`./workflow/build-pdf.sh`](./workflow/build-pdf.sh).
 The script auto-detects architecture, uses skill-local fonts and binaries, and requires no system installs.
 Full step-by-step instructions, including input/output paths, failure diagnosis, and architecture notes, are in [`./workflow/build-pdf.md`](./workflow/build-pdf.md).
+
+---
+
+## Theme customisation
+
+Every visual decision — type scale, spacing rhythm, colour palette, layout variants — lives in a single YAML theme file at [`./themes/presets/default.yaml`](./themes/presets/default.yaml). Copy it, edit, and point the build script at the new theme with `--theme <path>`. Per-document tweaks via frontmatter `theme_overrides:`. Full token reference: [`./themes/SCHEMA.md`](./themes/SCHEMA.md).
