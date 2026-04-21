@@ -1,237 +1,219 @@
 % =============================================================================
-% PDF Documentation Template
-% Implements design_specification.md
+% Markset — LaTeX Template
+% Structural only. All design values come from the theme (YAML) via
+% templates/apply-theme.lua, which emits \ms tokens and color definitions
+% into the header-includes block below. See themes/SCHEMA.md for the token map.
 % =============================================================================
 
 \documentclass[10pt,a4paper]{article}
 
 % =============================================================================
-% PACKAGES
+% PACKAGE LOAD — all packages load BEFORE the token injection block so
+% xcolor and fontspec are available when tokens are emitted. Configuration
+% that CONSUMES tokens (setmainfont, titleformat, tcolorbox, etc.) all
+% happens BELOW the injection block.
 % =============================================================================
 
-% Page layout
 \usepackage[
-  top=20mm,
-  bottom=15mm,
-  left=12.5mm,
-  right=12.5mm,
-  headheight=12pt,
-  headsep=6pt,
-  footskip=10pt
+  top=$mspage_margin_top$,
+  bottom=$mspage_margin_bottom$,
+  left=$mspage_margin_left$,
+  right=$mspage_margin_right$,
+  headheight=$mspage_header_height$,
+  headsep=$mspage_header_sep$,
+  footskip=$mspage_footer_skip$
 ]{geometry}
 
-% Fonts (requires XeLaTeX/LuaLaTeX via Tectonic)
-\usepackage{fontspec}
-\setmainfont{Inter}[
-  Path = $fontdir$/,
-  UprightFont = *-Regular,
-  BoldFont = *-SemiBold,
-  ItalicFont = *-Italic,
-  BoldItalicFont = *-SemiBoldItalic
-]
-\setmonofont{JetBrainsMono}[
-  Path = $fontdir$/,
-  UprightFont = *-Regular,
-  BoldFont = *-Bold,
-  ItalicFont = *-Italic,
-  BoldItalicFont = *-BoldItalic,
-  Scale=0.9
-]
-
-% Colors
-\usepackage{xcolor}
-
-% Primary colors
-\definecolor{secondary}{HTML}{ca9ee6}
-
-% Background colors
-\definecolor{pagebg}{HTML}{faf7f2}
-\definecolor{codebg}{HTML}{f0ece4}
-\definecolor{calloutbg}{HTML}{f4f0e8}
-\definecolor{placeholderbg}{HTML}{ece8e0}
-
-% Text colors
-\definecolor{bodytext}{HTML}{181826}
-\definecolor{secondarytext}{HTML}{3d3d4d}
-\definecolor{tertiarytext}{HTML}{5d5d6d}
-
-% Border/rule colors
-\definecolor{tablerule}{HTML}{d4d0c6}
-\definecolor{placeholderborder}{HTML}{c4c0b6}
-\definecolor{accentmuted}{HTML}{a080c0}
-
-% Callout border colors
-\definecolor{noteborder}{HTML}{8d8d9d}
-\definecolor{tipborder}{HTML}{ca9ee6}
-\definecolor{warningborder}{HTML}{d4a574}
-\definecolor{importantborder}{HTML}{a080c0}
-
-% Syntax highlighting colors
-\definecolor{synstring}{HTML}{a080c0}
-\definecolor{syncomment}{HTML}{5d5d6d}
-\definecolor{synnumber}{HTML}{3d3d4d}
-
-% Page background
+\usepackage{fontspec}     % XeLaTeX/LuaLaTeX via Tectonic
+\usepackage{xcolor}       % must load before \definecolor in header-includes
 \usepackage{pagecolor}
-\pagecolor{pagebg}
-
-% Set default text color
-\color{bodytext}
-
-% Typography
-\setlength{\parindent}{0pt}
-
-% Headers and footers
 \usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{0pt}
-\fancyhead[R]{\fontsize{8pt}{10pt}\selectfont\color{tertiarytext}$title$ | v$version$}
-\fancyfoot[R]{\fontsize{8pt}{10pt}\selectfont\color{tertiarytext}\thepage}
-
-% First page style (no header, no footer)
-\fancypagestyle{firstpage}{
-  \fancyhf{}
-  \renewcommand{\headrulewidth}{0pt}
-  \renewcommand{\footrulewidth}{0pt}
-}
-
-% Headings
 \usepackage{titlesec}
-
-% H1: 16pt Semibold with full-width divider (not numbered)
-\titleformat{\section}
-  {\fontsize{16pt}{19pt}\selectfont\bfseries\color{bodytext}}
-  {} % No number for H1
-  {0pt} % No space for number
-  {}
-  [ \vspace{-12pt}
-  \rule{\textwidth}{0.5pt}]
-  \titlespacing*{\section}{0pt}{12pt}{0pt}
-
-% H2: 13pt Semibold
-\titleformat{\subsection}
-  {\fontsize{13pt}{16pt}\selectfont\bfseries\color{bodytext}}
-  {\thesubsection}
-  {0.5em}
-  {}
-  \titlespacing*{\subsection}{0pt}{8pt}{0pt}
-
-% H3: 11pt Medium (using bold as fallback)
-\titleformat{\subsubsection}
-  {\fontsize{11pt}{14pt}\selectfont\bfseries\color{bodytext}}
-  {\thesubsubsection}
-  {0.5em}
-  {}
-  \titlespacing*{\subsubsection}{0pt}{8pt}{0pt}
-
-% H4: 10pt Semibold
-\titleformat{\paragraph}
-  {\fontsize{10pt}{13pt}\selectfont\bfseries\color{bodytext}}
-  {\theparagraph}
-  {0.5em}
-  {}
-  \titlespacing*{\paragraph}{0pt}{8pt}{0pt}
-
-% Orphan/widow control for headings
-\widowpenalty=10000
-\clubpenalty=10000
-\makeatletter
-\@secpenalty=-500
-\makeatother
-
-% Section numbering configuration
-% H1 (\section) is not numbered - it's the document title
-% H2 (\subsection) becomes top-level: 1, 2, 3, ...
-% H3 (\subsubsection) becomes: 1.1, 1.2, ...
-% H4 (\paragraph) becomes: 1.1.1, 1.1.2, ...
-
-\setcounter{secnumdepth}{4} % Enable numbering for all levels
-
-% Redefine section number to be empty (H1 not numbered)
-\renewcommand{\thesection}{}
-
-% Redefine subsection to number without section prefix (H2 as top-level)
-\renewcommand{\thesubsection}{\arabic{subsection}}
-
-% Redefine subsubsection with subsection prefix (H3)
-\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
-
-% Redefine paragraph with subsubsection prefix (H4)
-\renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
-
-% Table of Contents
 \usepackage{tocloft}
-\renewcommand{\cfttoctitlefont}{\fontsize{13pt}{16pt}\selectfont\bfseries\color{bodytext}}
-
-% Hide sections (H1) from TOC - they're document titles
-\renewcommand{\cftsecfont}{\fontsize{10pt}{12pt}\selectfont\color{bodytext}}
-\renewcommand{\cftsecpagefont}{\fontsize{10pt}{12pt}\selectfont\color{secondarytext}}
-\makeatletter
-\renewcommand{\l@section}[2]{} % Don't display sections in TOC
-\makeatother
-
-% H2 (subsections) appear as top-level in TOC
-\renewcommand{\cftsubsecfont}{\fontsize{10pt}{12pt}\selectfont\color{accentmuted}}
-\renewcommand{\cftsubsecpagefont}{\fontsize{10pt}{12pt}\selectfont\color{bodytext}}
-\renewcommand{\cftsecleader}{\hfill}
-\renewcommand{\cftsubsecleader}{\hfill} % No dots for H2
-
-% H3 (subsubsections) in TOC
-\renewcommand{\cftsubsubsecfont}{\fontsize{10pt}{12pt}\selectfont\color{accentmuted}}
-\renewcommand{\cftsubsubsecpagefont}{\fontsize{10pt}{12pt}\selectfont\color{bodytext}}
-\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}} % Dotted lines for H3
-
-% H4 (paragraphs) in TOC
-\renewcommand{\cftparafont}{\fontsize{10pt}{12pt}\selectfont\color{accentmuted}}
-\renewcommand{\cftparapagefont}{\fontsize{10pt}{12pt}\selectfont\color{bodytext}}
-\renewcommand{\cftparaleader}{\cftdotfill{\cftdotsep}} % Dotted lines for H4
-
-\setlength{\cftsecnumwidth}{2em}
-\setlength{\cftsubsecnumwidth}{2em} % Reduced since no section prefix
-\setlength{\cftsubsecindent}{0pt} % No indent since they're top-level now
-\setlength{\cftsubsubsecindent}{2em} % Indent H3
-\setlength{\cftsubsubsecnumwidth}{3em}
-\setlength{\cftparaindent}{4em} % Indent H4
-\setlength{\cftparanumwidth}{3.5em}
-\setlength{\cftbeforesecskip}{0pt}
-\setcounter{tocdepth}{3} % Include up to H4 in TOC
-
-% Tables
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{colortbl}
 \usepackage{calc}
 \usepackage{varwidth}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{placeins}     % provides \FloatBarrier (used by divs.lua before H2/H3 headings)
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage[bottom]{footmisc}
 
-% Table styling
-\setlength{\tabcolsep}{8pt}
-\renewcommand{\arraystretch}{1.4}
-\arrayrulecolor{tablerule}
-\setlength{\heavyrulewidth}{0.75pt}
-\setlength{\lightrulewidth}{0.5pt}
-\setlength{\cmidrulewidth}{0.5pt}
+% Pandoc shims — harmless if already defined by Pandoc's own output
+\providecommand{\pandocbounded}[1]{#1}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\passthrough}[1]{#1}
 
-% Make tables left-aligned (override Pandoc's centering)
+% =============================================================================
+% TOKEN INJECTION — apply-theme.lua emits tokens here
+% =============================================================================
+
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+% =============================================================================
+% CONFIGURATION — everything below consumes tokens
+% =============================================================================
+
+% ---- Page background + default text colour ---------------------------------
+\pagecolor{pagebg}
+\color{textprimary}
+\setlength{\parindent}{0pt}
+
+% ---- Fonts -----------------------------------------------------------------
+\setmainfont{\msfontmain}[
+  Path = $fontdir$/,
+  UprightFont = *\msmainregular,
+  BoldFont = *\msmainbold,
+  ItalicFont = *\msmainitalic,
+  BoldItalicFont = *\msmainbolditalic
+]
+\setmonofont{\msfontmono}[
+  Path = $fontdir$/,
+  UprightFont = *\msmonoregular,
+  BoldFont = *\msmonobold,
+  ItalicFont = *\msmonoitalic,
+  BoldItalicFont = *\msmonobolditalic,
+  Scale=\msmonoscale
+]
+
+% ---- Running header + footer -----------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+$if(ms_header_title_version)$
+\fancyhead[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\color{texttertiary}$title$ | v$version$}
+$endif$
+$if(ms_header_title_only)$
+\fancyhead[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\color{texttertiary}$title$}
+$endif$
+$if(ms_header_section)$
+\fancyhead[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\color{texttertiary}\leftmark}
+$endif$
+
+\fancyfoot[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\color{texttertiary}\thepage}
+
+\fancypagestyle{firstpage}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% ---- Headings --------------------------------------------------------------
+% H1 (section) — title + full-width rule. The rule is nudged up to sit close
+% to the baseline; 0.55em is a text-relative nudge that scales with the
+% heading font size.
+\titleformat{\section}
+  {\fontsize{\msfonthone}{\msfonthonelh}\selectfont\bfseries\color{textprimary}}
+  {}{0pt}{}
+  [\vspace{-0.55em}\rule{\textwidth}{\msrulethin}]
+\titlespacing*{\section}{0pt}{\mshonebefore}{\mshoneafter}
+
+\titleformat{\subsection}
+  {\fontsize{\msfonthtwo}{\msfonthtwolh}\selectfont\bfseries\color{textprimary}}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{\mshtwobefore}{\mshtwoafter}
+
+\titleformat{\subsubsection}
+  {\fontsize{\msfonththree}{\msfonththreelh}\selectfont\bfseries\color{textprimary}}
+  {\thesubsubsection}{0.5em}{}
+\titlespacing*{\subsubsection}{0pt}{\mshthreebefore}{\mshthreeafter}
+
+\titleformat{\paragraph}
+  {\fontsize{\msfonthfour}{\msfonthfourlh}\selectfont\bfseries\color{textprimary}}
+  {\theparagraph}{0.5em}{}
+\titlespacing*{\paragraph}{0pt}{\mshfourbefore}{\mshfourafter}
+
+% Orphan/widow + section penalty
+\widowpenalty=10000
+\clubpenalty=10000
+\makeatletter
+\@secpenalty=-500
+\makeatother
+
+% ---- Section numbering -----------------------------------------------------
+\setcounter{secnumdepth}{4}
+
+$if(ms_h1_numbered)$
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
+$else$
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+\renewcommand{\theparagraph}{\thesubsubsection.\arabic{paragraph}}
+$endif$
+
+$if(ms_numbering_none)$
+\setcounter{secnumdepth}{-1}
+$endif$
+
+% ---- Table of Contents -----------------------------------------------------
+\renewcommand{\cfttoctitlefont}{\fontsize{\msfonttoctitle}{\msfonttoctitlelh}\selectfont\bfseries\color{textprimary}}
+
+\renewcommand{\cftsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
+\renewcommand{\cftsecpagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textsecondary}}
+\makeatletter
+\renewcommand{\l@section}[2]{}  % H1 is document title; hide from TOC
+\makeatother
+
+\renewcommand{\cftsubsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{accentmuted}}
+\renewcommand{\cftsubsecpagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
+\renewcommand{\cftsecleader}{\hfill}
+\renewcommand{\cftsubsecleader}{\hfill}
+
+\renewcommand{\cftsubsubsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{accentmuted}}
+\renewcommand{\cftsubsubsecpagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
+\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}}
+
+\renewcommand{\cftparafont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{accentmuted}}
+\renewcommand{\cftparapagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
+\renewcommand{\cftparaleader}{\cftdotfill{\cftdotsep}}
+
+\setlength{\cftsecnumwidth}{2em}
+\setlength{\cftsubsecnumwidth}{2em}
+\setlength{\cftsubsecindent}{0pt}
+\setlength{\cftsubsubsecindent}{2em}
+\setlength{\cftsubsubsecnumwidth}{3em}
+\setlength{\cftparaindent}{4em}
+\setlength{\cftparanumwidth}{3.5em}
+\setlength{\cftbeforesecskip}{0pt}
+\setcounter{tocdepth}{3}
+
+% ---- Tables ----------------------------------------------------------------
+\setlength{\tabcolsep}{\mstablecolsep}
+\renewcommand{\arraystretch}{\mstablestretch}
+\arrayrulecolor{ruletable}
+\setlength{\heavyrulewidth}{\msrulethick}
+\setlength{\lightrulewidth}{\msrulethin}
+\setlength{\cmidrulewidth}{\msrulethin}
+
 \setlength\LTleft{0pt}
 \setlength\LTright\fill
+\setlength\LTpre{\mstablebefore}
+\setlength\LTpost{\mstableafter}
 
-% Reduce spacing before and after tables
-\setlength\LTpre{4pt}
-\setlength\LTpost{-10pt}
-
-% Code blocks
-\usepackage{listings}
-
+% ---- Code blocks -----------------------------------------------------------
 \lstdefinestyle{codeblock}{
   backgroundcolor=\color{codebg},
-  basicstyle=\fontsize{9pt}{12pt}\selectfont\ttfamily\color{bodytext},
-  keywordstyle=\bfseries\color{bodytext},
+  basicstyle=\fontsize{\msfontcode}{\msfontcodelh}\selectfont\ttfamily\color{textprimary},
+  keywordstyle=\bfseries\color{textprimary},
   stringstyle=\color{synstring},
   commentstyle=\itshape\color{syncomment},
-  numberstyle=\fontsize{6pt}{8pt}\selectfont\ttfamily\color{synnumber},
+  numberstyle=\fontsize{\msfontlinenumber}{\msfontlinenumberlh}\selectfont\ttfamily\color{synnumber},
   breakatwhitespace=false,
   breaklines=true,
   keepspaces=true,
@@ -241,146 +223,102 @@
   tabsize=2,
   mathescape=false,
   frame=none,
-  xleftmargin=8pt,
-  xrightmargin=8pt,
-  framexleftmargin=8pt,
-  framexrightmargin=8pt,
-  framesep=8pt,
-  belowskip=12pt,
+  xleftmargin=\mscodepadx,
+  xrightmargin=\mscodepadx,
+  framexleftmargin=\mscodepadx,
+  framexrightmargin=\mscodepadx,
+  framesep=\mscodepadx,
+  aboveskip=\mscodebefore,
+  belowskip=\mscodeafter,
   literate={✓}{{\ensuremath{\checkmark}}}1 {✗}{{\ensuremath{\times}}}1 {→}{{\ensuremath{\rightarrow}}}1 {×}{{\ensuremath{\times}}}1
 }
 
-% Cover ASCII art style - larger font, no background, no line breaking
 \lstdefinestyle{coverasciiart}{
-  basicstyle=\fontsize{14pt}{16pt}\selectfont\ttfamily\color{bodytext},
+  basicstyle=\fontsize{\msfontasciicover}{\msfontasciicoverlh}\selectfont\ttfamily\color{textprimary},
   backgroundcolor=\color{pagebg},
-  breaklines=false,
-  breakatwhitespace=false,
-  keepspaces=true,
-  showspaces=false,
-  showstringspaces=false,
-  showtabs=false,
-  tabsize=2,
-  frame=none,
-  xleftmargin=0pt,
-  xrightmargin=0pt,
-  framexleftmargin=0pt,
-  framexrightmargin=0pt,
-  framesep=0pt,
-  aboveskip=0pt,
-  belowskip=12pt,
-  mathescape=false
+  breaklines=false, breakatwhitespace=false, keepspaces=true,
+  showspaces=false, showstringspaces=false, showtabs=false, tabsize=2,
+  frame=none, xleftmargin=0pt, xrightmargin=0pt,
+  framexleftmargin=0pt, framexrightmargin=0pt, framesep=0pt,
+  aboveskip=0pt, belowskip=\msspacelg, mathescape=false
 }
 
-
-% ASCII art style - smaller font, no background, no line breaking
 \lstdefinestyle{asciiart}{
-  basicstyle=\fontsize{12pt}{14pt}\selectfont\ttfamily\color{bodytext},
+  basicstyle=\fontsize{\msfontasciibody}{\msfontasciibodylh}\selectfont\ttfamily\color{textprimary},
   backgroundcolor=\color{pagebg},
-  breaklines=false,
-  breakatwhitespace=false,
-  keepspaces=true,
-  showspaces=false,
-  showstringspaces=false,
-  showtabs=false,
-  tabsize=2,
-  frame=none,
-  xleftmargin=-18pt,
-  xrightmargin=0pt,
-  framexleftmargin=0pt,
-  framexrightmargin=0pt,
-  framesep=0pt,
-  aboveskip=0pt,
-  belowskip=0pt,
-  mathescape=false
+  breaklines=false, breakatwhitespace=false, keepspaces=true,
+  showspaces=false, showstringspaces=false, showtabs=false, tabsize=2,
+  frame=none, xleftmargin=0pt, xrightmargin=0pt,
+  framexleftmargin=0pt, framexrightmargin=0pt, framesep=0pt,
+  aboveskip=0pt, belowskip=0pt, mathescape=false
 }
 
 \lstset{style=codeblock}
 
-% Passthrough command for listings (used by Pandoc with --listings flag)
-\newcommand{\passthrough}[1]{#1}
-
-% Custom inline code command with background
+% Inline code
 \newcommand{\inlinecode}[1]{%
-  \setlength{\fboxsep}{2pt}%
-  \colorbox{codebg}{\fontsize{9pt}{11pt}\selectfont\ttfamily\color{bodytext}#1}%
+  \setlength{\fboxsep}{\msspacexs}%
+  \colorbox{codebg}{\fontsize{\msfontinlinecode}{\msfontinlinecodelh}\selectfont\ttfamily\color{textprimary}#1}%
 }
 
-% Callouts/admonitions (using tcolorbox)
-\usepackage[most]{tcolorbox}
-
-% Base callout style
+% ---- Callouts --------------------------------------------------------------
 \tcbset{
   calloutbase/.style={
     enhanced,
     breakable,
     boxrule=0pt,
     frame hidden,
-    borderline west={3pt}{0pt}{#1},
+    borderline west={\mscalloutborder}{0pt}{#1},
     colback=calloutbg,
-    coltext=bodytext,
-    left=10pt,
-    right=10pt,
-    top=4pt,
-    bottom=4pt,
-    before skip=4pt,
-    after skip=4pt,
-    fontupper=\fontsize{10pt}{14pt}\selectfont
+    coltext=textprimary,
+    left=\mscalloutpadx,
+    right=\mscalloutpadx,
+    top=\mscalloutpady,
+    bottom=\mscalloutpady,
+    before skip=\mscalloutbefore,
+    after skip=\mscalloutafter,
+    fontupper=\fontsize{\msfontbody}{\msfontbodylh}\selectfont
   }
 }
 
-% Note callout
-\newtcolorbox{note}{
-  calloutbase=noteborder,
-  before upper={\textcolor{tertiarytext}{[i]}\hspace{6pt}}
-}
+\newtcolorbox{note}{calloutbase=noteborder,
+  before upper={\textcolor{texttertiary}{\msglyphnote}\hspace{6pt}}}
+\newtcolorbox{tip}{calloutbase=tipborder,
+  before upper={\textcolor{texttertiary}{\msglyphtip}\hspace{6pt}}}
+\newtcolorbox{warning}{calloutbase=warningborder,
+  before upper={\textcolor{texttertiary}{\msglyphwarning}\hspace{6pt}}}
+\newtcolorbox{important}{calloutbase=importantborder,
+  before upper={\textcolor{texttertiary}{\msglyphimportant}\hspace{6pt}}}
 
-% Tip callout
-\newtcolorbox{tip}{
-  calloutbase=tipborder,
-  before upper={\textcolor{tertiarytext}{*}\hspace{6pt}}
-}
-
-% Warning callout
-\newtcolorbox{warning}{
-  calloutbase=warningborder,
-  before upper={\textcolor{tertiarytext}{[!]}\hspace{6pt}}
-}
-
-% Important callout
-\newtcolorbox{important}{
-  calloutbase=importantborder,
-  before upper={\textcolor{tertiarytext}{[*]}\hspace{6pt}}
-}
-
-% Image placeholder
+% ---- Image placeholder -----------------------------------------------------
 \newtcolorbox{imageplaceholder}{
   enhanced,
   breakable,
   boxrule=1pt,
   colframe=placeholderborder,
   colback=placeholderbg,
-  coltext=tertiarytext,
-  left=12pt,
-  right=12pt,
-  top=12pt,
-  bottom=12pt,
-  before skip=8pt,
-  after skip=8pt,
-  fontupper=\fontsize{9pt}{12pt}\selectfont,
+  coltext=texttertiary,
+  left=\msspacelg,
+  right=\msspacelg,
+  top=\msspacelg,
+  bottom=\msspacelg,
+  before skip=\msspacemd,
+  after skip=\msspacemd,
+  fontupper=\fontsize{\msfontcaption}{\msfontcaptionlh}\selectfont,
   halign=center,
   valign=center,
-  height=60pt,
+  height=\msimageplaceholderheight,
   arc=0pt,
   borderline={1pt}{0pt}{placeholderborder, dashed}
 }
 
-% Images and figures
-\usepackage{graphicx}
-\usepackage{float}
+% ---- Default image sizing --------------------------------------------------
+\setkeys{Gin}{width=\msimagedefaultwidth\linewidth,keepaspectratio}
 
-% Captions
-\usepackage{caption}
+% Pin figures in place — no floating away from their source position.
+\floatplacement{figure}{H}
+
+% ---- Captions --------------------------------------------------------------
 \captionsetup{
   font={small},
   labelfont={},
@@ -390,22 +328,19 @@
   singlelinecheck=false
 }
 \captionsetup[figure]{
-  name=Figure,
-  labelsep=colon,
-  font={footnotesize,color=secondarytext},
-  labelfont={footnotesize,color=secondarytext},
-  textfont={footnotesize,it,color=secondarytext}
+  name=Figure, labelsep=colon,
+  font={footnotesize,color=textsecondary},
+  labelfont={footnotesize,color=textsecondary},
+  textfont={footnotesize,it,color=textsecondary}
 }
 \captionsetup[table]{
-  name=Table,
-  labelsep=colon,
-  font={footnotesize,color=secondarytext},
-  labelfont={footnotesize,color=secondarytext},
-  textfont={footnotesize,it,color=secondarytext},
+  name=Table, labelsep=colon,
+  font={footnotesize,color=textsecondary},
+  labelfont={footnotesize,color=textsecondary},
+  textfont={footnotesize,it,color=textsecondary},
 }
 
-% Links
-\usepackage{hyperref}
+% ---- Links -----------------------------------------------------------------
 \hypersetup{
   colorlinks=true,
   linkcolor=accentmuted,
@@ -414,66 +349,46 @@
   pdfborder={0 0 0}
 }
 
-% Lists
-\usepackage{enumitem}
-\usepackage{amssymb}
-
+% ---- Lists -----------------------------------------------------------------
 \setlist{
-  topsep=0pt,
-  itemsep=3pt,
+  topsep=\mslisttopsep,
+  itemsep=\mslistitemsep,
   parsep=0pt,
-  leftmargin=14pt
+  leftmargin=\mslistindent
 }
-
-\setlist[itemize,1]{label=•}
-\setlist[itemize,2]{label=◦, leftmargin=16pt}
-
+\setlist[itemize,1]{label=\mslistmarkerone}
+\setlist[itemize,2]{label=\mslistmarkertwo, leftmargin=\mslistsubindent}
 \setlist[enumerate,1]{label=\arabic*.}
-\setlist[enumerate,2]{label=\alph*., leftmargin=16pt}
+\setlist[enumerate,2]{label=\alph*., leftmargin=\mslistsubindent}
 
-% Pandoc tightlist command (for compact lists)
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
-% Block quotes (using tcolorbox like callouts)
+% ---- Block quotes (reuse callout visuals) ----------------------------------
 \newtcolorbox{quotebox}{
-  enhanced,
-  breakable,
-  boxrule=0pt,
-  frame hidden,
-  borderline west={3pt}{0pt}{tablerule},
+  enhanced, breakable, boxrule=0pt, frame hidden,
+  borderline west={\mscalloutborder}{0pt}{ruletable},
   colback=calloutbg,
-  coltext=secondarytext,
-  left=10pt,
-  right=10pt,
-  top=4pt,
-  bottom=4pt,
-  fontupper=\fontsize{10pt}{14pt}\selectfont\itshape
+  coltext=textsecondary,
+  left=\mscalloutpadx, right=\mscalloutpadx,
+  top=\mscalloutpady, bottom=\mscalloutpady,
+  before skip=\mscalloutbefore, after skip=\mscalloutafter,
+  fontupper=\fontsize{\msfontbody}{\msfontbodylh}\selectfont\itshape
 }
+\renewenvironment{quote}{\begin{quotebox}}{\end{quotebox}}
 
-% Override Pandoc's quote environment
-\renewenvironment{quote}{%
-  \begin{quotebox}%
-}{%
-  \end{quotebox}%
-}
-
-% Footnotes
-\usepackage[bottom]{footmisc}
+% ---- Footnotes -------------------------------------------------------------
 \renewcommand{\footnoterule}{%
   \kern-3pt
-  {\color{tablerule}\hrule width 30mm height 0.5pt}
+  {\color{ruletable}\hrule width 30mm height \msrulethin}
   \kern 2.6pt
 }
-\renewcommand{\thefootnote}{\textcolor{secondary}{\arabic{footnote}}}
-\renewcommand{\footnotesize}{\fontsize{8pt}{10pt}\selectfont}
+\renewcommand{\thefootnote}{\textcolor{accentprimary}{\arabic{footnote}}}
+\renewcommand{\footnotesize}{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont}
 
 % Counter for tables without captions (Pandoc generates \LTcaptype{none})
 \newcounter{none}
 
 % Horizontal rule
 \renewcommand{\hrulefill}{%
-  \leavevmode\leaders\hbox{\rule[0.5ex]{\linewidth}{0.5pt}}\hfill\kern0pt%
+  \leavevmode\leaders\hbox{\rule[0.5ex]{\linewidth}{\msrulethin}}\hfill\kern0pt%
 }
 
 % CSL references
@@ -489,10 +404,8 @@ $endif$
 
 \begin{document}
 
-% First page: Cover + TOC
+$if(ms_cover_centered_ascii)$
 \thispagestyle{firstpage}
-
-% Push entire block to bottom
 \null\vfill
 
 $for(include-before)$
@@ -505,21 +418,50 @@ $endfor$
 
 \vfill
 
-% Title block
-{\fontsize{16pt}{19pt}\selectfont\bfseries $title$\par}
-{\fontsize{9pt}{11pt}\selectfont\color{secondarytext}%
+{\fontsize{\msfontcovertitle}{\msfontcovertitlelh}\selectfont\bfseries $title$\par}
+{\fontsize{\msfontcovermeta}{\msfontcovermetalh}\selectfont\color{textsecondary}%
 $if(author)$$author$ · $endif$v$version$$if(date)$ · $date$$endif$\par}
 
-% Table of contents
+$if(ms_toc_include)$
 \tableofcontents
 \thispagestyle{firstpage}
+$endif$
 
-% Triple bottom margin for first page
 \vspace{6em}
-
 \newpage
+$endif$
 
-% Content
+$if(ms_cover_title_top)$
+\thispagestyle{firstpage}
+{\fontsize{\msfontcovertitle}{\msfontcovertitlelh}\selectfont\bfseries $title$\par}
+\vspace{\msspacemd}
+{\fontsize{\msfontcovermeta}{\msfontcovermetalh}\selectfont\color{textsecondary}%
+$if(author)$$author$ · $endif$v$version$$if(date)$ · $date$$endif$\par}
+
+\vspace{\msspacexl}
+
+$for(include-before)$
+\begin{varwidth}{\textwidth}
+$include-before$
+\end{varwidth}
+$endfor$
+
+\vfill
+
+$if(ms_toc_include)$
+\tableofcontents
+\thispagestyle{firstpage}
+$endif$
+\newpage
+$endif$
+
+$if(ms_cover_none)$
+$if(ms_toc_include)$
+\tableofcontents
+\newpage
+$endif$
+$endif$
+
 $body$
 
 \end{document}

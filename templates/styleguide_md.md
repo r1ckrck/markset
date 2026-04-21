@@ -15,6 +15,16 @@ include-before: |
 ---
 ```
 
+Optional — theme customisation:
+```yaml
+theme_overrides:
+  palette.accent.primary: "#ff6600"   # one-off accent colour
+  spacing.unit: 5pt                    # bump the rhythm
+  blocks.heading.h1.before: 36pt       # more air above H1
+  layout.cover.style: title-top        # swap cover layout
+```
+Dot-path keys address any theme field — see `themes/SCHEMA.md` for the full map.
+
 ## Structure
 - One sentence per line (source readability)
 - Consecutive sentences combine into paragraphs in PDF
@@ -86,14 +96,26 @@ Content here.
 ## Images
 Use only when necessary. Formats: PNG, JPG, PDF.
 
-Real: `![Caption](path.png)`
+Two variants — pick based on role:
 
-Placeholder:
+**Supporting image** (default, 60% column width — sits inside the reading column):
+```markdown
+![Caption](path.png)
+```
+
+**Full-bleed image** (100% column width — hero / diagram / feature shot):
+```markdown
+![Caption](path.png){width=100%}
+```
+
+Any width override is accepted (e.g. `{width=80%}`), but prefer the two variants above for consistency.
+
+Placeholder (when the image is not yet available):
 ```markdown
 ::: image-placeholder
 Figure: Title
 Description: What it shows
-Dimensions: full-width
+Dimensions: supporting | full-bleed
 :::
 ```
 

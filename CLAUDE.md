@@ -24,10 +24,16 @@ markset/
 │   ├── tectonic-arm64          Tectonic binary — Apple Silicon
 │   └── tectonic-x86_64         Tectonic binary — Intel Mac / Linux x86_64
 ├── templates/
-│   ├── template.tex            LaTeX template (all visual decisions live here)
+│   ├── template.tex            LaTeX template (structural only — consumes theme tokens)
+│   ├── apply-theme.lua         Theme pipeline: validate, merge overrides, compute derived, emit \ms* tokens
 │   ├── divs.lua                Lua filter — callouts, image placeholders
 │   ├── styleguide_md.md        Markdown authoring rules (single source of truth)
 │   └── fonts/                  TTF files (Inter + JetBrains Mono — not committed)
+├── themes/
+│   ├── README.md               How to pick, copy, override a theme
+│   ├── SCHEMA.md               Canonical token reference (every key, type, default)
+│   └── presets/
+│       └── default.yaml        Bundled default theme (warm cream, Inter, compact rhythm)
 ├── workflow/
 │   ├── build-pdf.sh            Build script (run this to produce a PDF)
 │   ├── author-markdown.md      Step-by-step authoring instructions for Claude
@@ -40,37 +46,60 @@ markset/
 ## Build Command
 
 ```bash
-# Standard invocation
+# Standard invocation (uses themes/presets/default.yaml)
 <skill-dir>/workflow/build-pdf.sh <input.md> [output.pdf]
 
-# Default output: build/<filename>.pdf relative to input's parent directory
-<skill-dir>/workflow/build-pdf.sh docs/report.md
+# With a specific theme
+<skill-dir>/workflow/build-pdf.sh --theme path/to/theme.yaml <input.md>
 ```
 
-The script auto-detects architecture via `uname -m` and selects the matching binary.
+**Theme resolution** (highest wins): `--theme` flag → `./theme.yaml` next to input → `themes/presets/default.yaml`.
+
+The script auto-detects architecture via `uname -m` and selects the matching binary (falls back to system `pandoc`/`tectonic` on `PATH`).
 
 ---
 
-## Modifying the Skill
+## Customising the Skill
+
+Four axes of change, in order of how often you'll use them:
+
+### Axis 1 — Theme YAML (most common)
+Copy `themes/presets/default.yaml` to a new file, edit, point `--theme` at it.
+The YAML controls spacing, typography, colours, fonts, and layout variants.
+Every key is documented in `themes/SCHEMA.md`.
+
+### Axis 2 — Frontmatter overrides (per-document)
+Add `theme_overrides:` to a document's frontmatter with dot-path keys:
+```yaml
+theme_overrides:
+  palette.accent.primary: "#ff6600"
+  spacing.unit: 5pt
+```
+Overrides win over the theme file, for this document only.
+
+### Axis 3 — Preset files (named starting points)
+Drop a new file in `themes/presets/`. It's just a YAML — anyone can `--theme` it.
+
+### Axis 4 — Template (structural changes only)
+`templates/template.tex` is **structural** — it defines layout flow (cover, TOC, headers, body), package loads, and numbering rules. It consumes `\ms*` tokens emitted by `apply-theme.lua`. Edit the template only when a change can't be expressed as a token:
+- Adding a new cover-page variant
+- Changing what the running header references
+- New structural element (e.g. a margin-note block)
+
+### Lua filters
+- **`apply-theme.lua`** — runs first. Validates theme, merges `theme_overrides`, resolves palette `{{refs}}`, computes derived spacing/type sizes, emits LaTeX tokens into `header-includes`, sets layout boolean flags on metadata. **Extend this** when adding new tokens.
+- **`divs.lua`** — runs second. Handles `:::` fenced divs (callouts, image-placeholders).
 
 ### Build script (`workflow/build-pdf.sh`)
-- All paths are derived from `SKILL_DIR` — no hardcoded absolute paths
-- Architecture detection: `ARCH=$(uname -m)` selects `pandoc-arm64` vs `pandoc-x86_64`
-- Tectonic is symlinked into a temp `PATH` entry so Pandoc can find it by name
+- Paths derive from `SKILL_DIR` — no hardcoded absolutes
+- Binary resolution: system `PATH` first, then skill-local `bin/<tool>-<arch>`
+- Tectonic is symlinked into a temp `PATH` entry so Pandoc finds it by name
 - Do not add system-level dependencies — the skill must remain self-contained
 
-### LaTeX template (`templates/template.tex`)
-- Controls all visual output: fonts, spacing, colors, heading hierarchy, table styling
-- Markdown cannot override any of these — the template is the only source of design truth
-- Font paths are injected via `-V fontdir=...` at build time from `build-pdf.sh`
-
-### Lua filter (`templates/divs.lua`)
-- Handles `:::` fenced divs: callout types (`note`, `tip`, `warning`, `important`) and `image-placeholder`
-- Runs before the LaTeX template receives the AST
-
 ### Styleguide (`templates/styleguide_md.md`)
-- Read this before authoring any document — do not rely on memory
+- Read before authoring — do not rely on memory
 - Defines all permitted Markdown constructs and their constraints
+- Now also documents `theme_overrides` frontmatter
 
 ---
 
@@ -107,6 +136,7 @@ include-before: |
 | Binary not found | `bin/pandoc-<arch>` or `bin/tectonic-<arch>` missing | Add binary per README setup |
 | macOS Gatekeeper block | Quarantine attribute on binary | `xattr -d com.apple.quarantine bin/<binary>` |
 | Font not found | TTF files absent from `templates/fonts/` | Add Inter + JetBrains Mono TTFs |
+| `[markset] theme validation failed` | Theme YAML has missing or malformed values | Read the listed errors — each points to a key path and the offending value |
 | LaTeX error — missing field | Frontmatter field omitted | Add all five required fields |
 | Table render error | Caption line missing or has blank line before it | Move `: Caption` immediately after table |
 | Callout render error | Callout nested inside list or table | Move callout outside the list/table |

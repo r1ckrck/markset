@@ -1,214 +1,218 @@
 ---
-title: "Documentation System Overview"
+title: "Markset Feature Showcase"
 author: "Arnesh Mandal"
-version: "1.0"
-date: "2026-01-30"
+version: "2.0"
+date: "2026-04-21"
+include-before: |
+  \begin{lstlisting}[style=coverasciiart]
+   __  __            _         _
+  |  \/  | __ _ _ __| | _____ | |_
+  | |\/| |/ _` | '__| |/ / __|| __|
+  | |  | | (_| | |  |   <\__ \| |_
+  |_|  |_|\__,_|_|  |_|\_\___/ \__|
+
+     A self-contained Markdown to PDF skill
+  \end{lstlisting}
 ---
 
 # Introduction
 
-This project provides a complete markdown-to-PDF documentation system using Pandoc and Tectonic.
-The system converts markdown files to professionally styled PDFs with consistent typography, colors, and layout.
+Markset converts Markdown into polished PDFs with consistent typography, colour, and layout.
+This document exercises every element the template supports so regressions are easy to spot.
 
-# System Components
+The skill is self-contained — Pandoc and Tectonic binaries are bundled and fonts live inside the project.
+A single YAML theme file drives every visual decision; see `themes/SCHEMA.md` for the full token map.
 
-## Directory Structure
+# Typography
 
-| Directory | Purpose |
-|-----------|---------|
-| `docs/` | Markdown source files |
-| `build/` | Generated PDF output files |
-| `templates/` | LaTeX template, Lua filters, style guides |
-| `workflow/` | Build scripts and automation |
+## Paragraphs and Inline Styles
 
-## Key Files
+Body text is set in Inter at 10pt on 15pt leading.
+Inline elements cover **bold emphasis**, *italic emphasis*, and ***bold italic*** for strong contrast.
+Use `inline code` for identifiers, file names like `build-pdf.sh`, or short shell snippets.
+Links appear in the muted accent colour — see the [Pandoc user manual](https://pandoc.org/MANUAL.html) for reference.
 
-| File | Purpose |
-|------|---------|
-| `Makefile` | Build automation interface |
-| `CLAUDE.md` | AI assistant instructions |
-| `templates/template.tex` | LaTeX template implementing design spec |
-| `templates/divs.lua` | Pandoc Lua filter for custom elements |
-| `templates/styleguide_md.md` | Markdown writing rules |
-| `templates/design_specification.md` | Complete visual design specification |
-| `workflow/build-pdf.sh` | PDF generation script |
+Consecutive sentences on separate source lines merge into a single paragraph.
+This is the authoring convention documented in the styleguide.
+It keeps diffs meaningful while producing proper paragraph flow in the PDF.
 
-# Design System
+## Heading Hierarchy
 
-## Typography
+### Third-Level Heading
 
-The system uses two professionally designed fonts:
+H3 sits tight to its own content, with a clear step down in size from H2.
 
-- **Inter** — Body text and headings
-- **JetBrains Mono** — Code blocks and inline code
+#### Fourth-Level Heading
 
-## Color Palette
+H4 is the deepest level permitted and differentiates from body through weight and a small size bump.
 
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Primary | `#181826` | Body text, headings |
-| Secondary | `#ca9ee6` | Links, accents |
-| Page background | `#faf7f2` | Warm cream |
-| Code background | `#f0ece4` | Warm tan |
+# Lists
 
-## Supported Elements
+## Unordered
 
-The system supports:
+- First item in a single-level unordered list
+- Second item with **bold** and *italic* content inline
+- Third item that references `inline code`
+  - Nested child one
+  - Nested child two demonstrating the alternate glyph
+- Fourth top-level item
 
-- Headings (H1, H2, H3)
-- Code blocks with syntax highlighting
-- Inline code
-- Tables with captions
-- Callouts (note, tip, warning, important)
-- Images and figures
-- Image placeholders
-- Lists (ordered and unordered, max 2 levels)
-- Block quotes
-- Footnotes
-- Links
+## Ordered
 
-# Usage
+1. Install Pandoc via Homebrew or drop a binary into `bin/`
+2. Install Tectonic the same way
+3. Run the build script with the default theme
+   1. Inspect the PDF output
+   2. Adjust the theme YAML
+4. Repeat until satisfied
 
-## Building PDFs
+# Tables
 
-### Default Build
+A table uses dash-count to hint at column width ratios.
+Captions are mandatory and appear directly after the closing row.
 
-Build the default document:
+| Axis | Knob | Effect |
+|------|------|--------|
+| Rhythm | `spacing.unit` | All block spacing scales |
+| Size | `type.body` | All type scales proportionally |
+| Colour | `accent.primary` | Every accent reference shifts |
+| Layout | `cover.style` | Cover page structure changes |
+: Four axes of theme control
 
-```bash
-make pdf
+A second table with narrow columns distributed by dash count:
+
+| Tier | Size | Leading |
+|------|------|---------|
+| H1 | 14pt | 17pt |
+| H2 | 12pt | 14pt |
+| H3 | 10pt | 12pt |
+| H4 | 10pt | 14pt |
+| Body | 10pt | 14pt |
+: Default type scale — H1/H2 derived via `type.scale = 1.2`; H3/H4 match body size with bold weight differentiating
+
+# Callouts
+
+::: note
+This is a note callout.
+It carries an informational marker and the neutral grey border.
+Use it for background context that doesn't change what the reader should do.
+:::
+
+::: tip
+Tips share their border colour with the primary accent.
+Use them to surface a non-obvious shortcut or a better way to do something.
+:::
+
+::: warning
+Warnings use the warm amber border.
+Reserve them for situations that will cause something to break if ignored.
+:::
+
+::: important
+The important callout uses the muted accent.
+Use it sparingly for the single most important thing on a given page.
+:::
+
+# Code
+
+## Block with Language
+
+```python
+def build_pdf(markdown_path: str, theme_path: str) -> Path:
+    """Convert Markdown to PDF via Pandoc + Tectonic."""
+    output = OUT_DIR / f"{Path(markdown_path).stem}.pdf"
+    subprocess.run([
+        "pandoc", markdown_path,
+        "--template", TEMPLATE,
+        "--metadata-file", theme_path,
+        "--pdf-engine=tectonic",
+        "-o", str(output),
+    ], check=True)
+    return output
 ```
 
-### Custom Input File
-
-Build a specific markdown file:
+## Shell Snippet
 
 ```bash
-make pdf IN=docs/my-document.md
+./workflow/build-pdf.sh --theme themes/presets/default.yaml docs/index.md
+./workflow/build-pdf.sh docs/index.md build/custom.pdf
 ```
 
-### Custom Output Location
+## YAML Fragment
 
-Specify both input and output:
-
-```bash
-make pdf IN=docs/my-document.md OUT=build/custom-name.pdf
+```yaml
+palette:
+  accent:
+    primary: "#ca9ee6"
+    muted:   "#a080c0"
+  callout:
+    tip:
+      border: "{{accent.primary}}"
+      glyph:  "*"
 ```
 
-### Clean Build Directory
+# ASCII Art in Body
 
-Remove all generated PDFs:
+ASCII-art blocks use the `ascii` class and avoid line breaking.
 
-```bash
-make clean
+```ascii
+         ┌──────────┐      ┌──────────┐      ┌──────────┐
+  .md ──▶│  Pandoc  │─────▶│ Tectonic │─────▶│   .pdf   │
+         └──────────┘      └──────────┘      └──────────┘
+               │
+               ▼
+      apply-theme.lua
+      (validate, derive, emit)
 ```
 
-## Writing Markdown
+# Images
 
-### Required Frontmatter
+## Supporting Image
 
-Every markdown file must start with YAML frontmatter containing title, author, version, and date fields.
+A supporting image sits inline at 60% column width — the reading-column variant.
 
-### Style Guidelines
+![A neutral gradient serving as a test image at 60% width](images/sample.jpg)
 
-Follow these rules when writing markdown:
+## Full-Bleed Image
 
-- One sentence per line
-- Maximum heading depth: H3
-- Use Title Case for headings
-- All tables require captions
-- Always specify language for code blocks
-- No raw HTML or LaTeX
-- Keep content concise
+Using the `{width=100%}` modifier promotes an image to full column width — for diagrams or hero shots.
 
-See `templates/styleguide_md.md` for complete writing guidelines.
+![The same image promoted to full width](images/sample.jpg){width=100%}
 
-## Using Callouts
+## Placeholder
 
-Create callouts using fenced divs with types: note, tip, warning, or important.
+When the final image isn't ready, use an image-placeholder div.
 
-## Adding Images
+::: image-placeholder
+Figure: System architecture
+Description: Block diagram showing pandoc, lua filters, and tectonic.
+Dimensions: full-bleed
+:::
 
-### Real Images
+# Block Quotes
 
-Use standard markdown image syntax with caption and path.
+> Design is the art of gradually applying constraints until only one option remains.
+> Tokens are constraints; a theme is a set of them chosen deliberately.
 
-### Placeholders
+Block quotes use the callout visual vocabulary — a left rule plus a surface-tone background — but render in italics and secondary text colour to distinguish them from information boxes.
 
-Use image-placeholder divs when images are not yet available.
-Include Figure title, Description, and optional Dimensions fields.
+# Footnotes
 
-# System Requirements
+Footnotes[^1] cite supporting material without breaking reading flow.
+Use them sparingly — if a point needs a footnote every sentence, it belongs in the body.[^2]
 
-## Fonts
+[^1]: Footnote markers pick up the primary accent colour by default.
+[^2]: Or in a separate section, under its own heading.
 
-The following fonts must be installed in `~/Library/Fonts/`:
+# Horizontal Rule
 
-- Inter (Regular, SemiBold, Italic, SemiBold Italic)
-- JetBrains Mono (all weights and styles)
+Use horizontal rules sparingly to separate thematic shifts within a single heading section.
 
-Download from:
+---
 
-- Inter: https://github.com/rsms/inter/releases/latest
-- JetBrains Mono: https://github.com/JetBrains/JetBrainsMono/releases/latest
+The rule renders as a single thin line matching `rules.thin` in the theme.
 
-## Software Dependencies
+# Closing
 
-The build system requires:
-
-- Micromamba environment named `docs`
-- Pandoc (installed in micromamba environment)
-- Tectonic (installed in micromamba environment)
-
-These dependencies are already configured in the micromamba environment.
-
-# Technical Details
-
-## Build Process
-
-The build process:
-
-1. Reads markdown source file
-2. Processes custom elements with Lua filter
-3. Applies LaTeX template
-4. Generates PDF with Tectonic engine
-5. Outputs to build directory
-
-## Pandoc Configuration
-
-The build system uses Pandoc with Tectonic engine, custom LaTeX template, and Lua filters for processing markdown elements.
-Table of contents generation is enabled with depth 2, and sections are automatically numbered.
-
-# Troubleshooting
-
-## Font Not Found Errors
-
-If you see "font cannot be found" errors:
-
-1. Verify fonts are installed in `~/Library/Fonts/`
-2. Check font file names match template expectations
-3. Restart terminal session after font installation
-
-## Build Failures
-
-If PDF generation fails:
-
-1. Check markdown file has required frontmatter
-2. Verify markdown syntax follows style guide
-3. Ensure input file path is correct
-4. Check build output for specific error messages
-
-## Deprecated Warning Messages
-
-Warning messages about deprecated Pandoc options are expected.
-The build script uses current syntax that may trigger warnings in newer Pandoc versions.
-These warnings do not affect PDF generation.
-
-# Reference
-
-For detailed information, see:
-
-- Writing rules: `templates/styleguide_md.md`
-- Visual design: `templates/design_specification.md`
-- Build script: `workflow/build-pdf.sh`
-- LaTeX template: `templates/template.tex`
+Everything above should render without manual styling.
+If something looks off, the fix is in the theme YAML — not in the Markdown source.

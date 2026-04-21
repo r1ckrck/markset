@@ -104,14 +104,34 @@ If no output path is given, the PDF is saved to `build/<filename>.pdf` relative 
 
 ## Customisation
 
+All visual decisions live in a single YAML theme file. Copy `themes/presets/default.yaml`, edit, point the build script at it.
+
 | What you want to change | Where to edit |
-|------------------------|---------------|
-| Fonts, colors, spacing, layout, heading style, table styling | `templates/template.tex` |
-| What Markdown constructs Claude can use, document structure rules | `templates/styleguide_md.md` |
+|-------------------------|---------------|
+| Body size, heading scale, line-height, per-role leading | `themes/presets/default.yaml` → `type.*` |
+| Spacing rhythm, heading air, callout / code / table padding | `themes/presets/default.yaml` → `rhythm.*` |
+| Colour palette, callout glyphs | `themes/presets/default.yaml` → `palette.*` |
+| Fonts, page margins, rule widths, cover style, TOC, numbering | `themes/presets/default.yaml` → `fonts.*`, `page.*`, `layout.*`, `rules.*` |
+| Per-document tweak (one-off) | frontmatter `theme_overrides:` |
+| Markdown grammar Claude follows | `templates/styleguide_md.md` |
+| Structural changes (new block types, cover layout variants) | `templates/template.tex` |
 : Customisation reference
 
-`template.tex` is the single source of all visual decisions — Markdown cannot override it.
-`styleguide_md.md` defines the authoring grammar Claude follows when writing documents.
+**Three knobs do most of the work:** `type.base` (body size), `rhythm.base` (spacing unit), `palette.accent.primary` (accent colour). Change one of those and everything proportional cascades.
+
+Full token map with every field, type, default, and effect: `themes/SCHEMA.md`.
+
+### Multiple themes
+
+Create named presets in `themes/presets/`:
+
+```bash
+cp themes/presets/default.yaml themes/presets/minimal.yaml
+# …edit minimal.yaml…
+./workflow/build-pdf.sh --theme themes/presets/minimal.yaml docs/report.md
+```
+
+Resolution order (highest wins): `--theme` flag → `./theme.yaml` next to the markdown file → `themes/presets/default.yaml`.
 
 ---
 

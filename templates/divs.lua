@@ -95,7 +95,7 @@ function Code(el)
   code_text = code_text:gsub('}', '\\}')
   code_text = code_text:gsub('%$', '\\$')
   code_text = code_text:gsub('&', '\\&')
-  code_text = code_text:gsub('%%', '\\%')
+  code_text = code_text:gsub('%%', '\\%%')
   code_text = code_text:gsub('#', '\\#')
   code_text = code_text:gsub('_', '\\_')
   code_text = code_text:gsub('%^', '\\textasciicircum{}')
@@ -142,9 +142,27 @@ function CodeBlock(el)
   return el
 end
 
+-- Insert \FloatBarrier before every H2 / H3 header so figures cannot float
+-- past a section boundary. Belt-and-braces with \floatplacement{figure}{H} in
+-- template.tex. In markset, H1 is the unnumbered document title and H2 is the
+-- top-level numbered heading — barriers at H2/H3 catch every real section
+-- break without interfering with the cover / TOC structure.
+-- The placeins package providing \FloatBarrier is loaded in template.tex.
+function Header(el)
+  if FORMAT ~= 'latex' then return nil end
+  if el.level == 2 or el.level == 3 then
+    return {
+      pandoc.RawBlock('latex', '\\FloatBarrier'),
+      el
+    }
+  end
+  return nil
+end
+
 return {
   { Div = Div },
   { Table = Table },
   { Code = Code },
-  { CodeBlock = CodeBlock }
+  { CodeBlock = CodeBlock },
+  { Header = Header }
 }
