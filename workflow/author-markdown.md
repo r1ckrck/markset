@@ -50,6 +50,7 @@ Summary of key areas:
 - **Callouts** — types: `note`, `tip`, `warning`, `important`; never inside lists or tables
 - **Code blocks** — always specify language; aim for <80 chars per line
 - **ASCII art** — use ` ```ascii ` class for inline diagrams; max 82 chars wide
+- **Two-column layouts** — three ratios (`split-50-50`, `split-35-65`, `split-65-35`); each side accepts any block content (image, text, callout, list, code); both columns are atomic and won't break across pages
 
 ---
 

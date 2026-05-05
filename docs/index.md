@@ -191,9 +191,9 @@ Dimensions: full-bleed
 
 # Two-Column Layouts
 
-Three ratios are available — `split-50-50`, `split-35-65`, `split-65-35`. The gutter between columns is theme-driven (`rhythm.split.gutter`).
+Three ratios are available — `split-50-50`, `split-35-65`, `split-65-35`. The gutter between columns is theme-driven (`rhythm.split.gutter`). Each column accepts any block content; the variants below exercise the common combinations.
 
-## Equal Split
+## 50-50 — Image and Text
 
 ::: split-50-50
 ::: col
@@ -204,7 +204,31 @@ The 50-50 split is the workhorse — two images, two callouts, or a label / defi
 :::
 :::
 
-## Sidebar Left, Content Right
+## 50-50 — Two Images
+
+::: split-50-50
+::: col
+![Lake at sunrise](images/sample.jpg)
+:::
+::: col
+![Same scene, second exposure](images/sample.jpg)
+:::
+:::
+
+## 50-50 — Callout and Text
+
+::: split-50-50
+::: col
+::: tip
+The simplest pairing is a tip alongside the rule it supports — the callout reads as a quick prompt, the text carries the detail.
+:::
+:::
+::: col
+A callout in one column and explanatory text in the other works well for design rationale, decision logs, or short briefs. The callout sets the directive; the prose argues for it.
+:::
+:::
+
+## 35-65 — Sidebar Label and Body
 
 ::: split-35-65
 ::: col
@@ -217,7 +241,18 @@ The 35-65 ratio puts the emphasis on the right side. Use it when the right colum
 :::
 :::
 
-## Content Left, Sidebar Right
+## 35-65 — Thumbnail and Description
+
+::: split-35-65
+::: col
+![Reference photo](images/sample.jpg)
+:::
+::: col
+A thumbnail-sized image on the left frames a longer descriptive block on the right. Useful for catalogue entries, photo essays, and reference cards where the image is the index, not the focus.
+:::
+:::
+
+## 65-35 — Body and Sidebar Note
 
 ::: split-65-35
 ::: col
@@ -227,6 +262,17 @@ The 65-35 ratio inverts the previous one. The main reading column sits on the le
 **Side note**
 
 Both columns are atomic; if a row is too tall to fit on the current page, the entire row jumps to the next.
+:::
+:::
+
+## 65-35 — Body and Reference Image
+
+::: split-65-35
+::: col
+The eye lands on the body column first because it carries weight. The right column then provides a referenced visual without competing for primary attention. Best for documentation paragraphs that cite a small diagram or screenshot inline.
+:::
+::: col
+![Companion image](images/sample.jpg)
 :::
 :::
 

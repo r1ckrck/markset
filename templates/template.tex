@@ -375,28 +375,30 @@ $endif$
   \setlength{\mscolwidthB}{#2}%
   \setlength{\tabcolsep}{0pt}%
   \renewcommand{\arraystretch}{1}%
-  % Inside a tabular cell, the float-package's [H] figure environment
-  % breaks the cell boundary — its internal box machinery doesn't honour
-  % the surrounding column width. Locally redefine `figure` to a plain
-  % non-floating wrapper (still typesets centered, still allows \caption
-  % via \captionsetup{type=figure}). Pandoc's emit of \begin{figure}
-  % \centering\includegraphics\caption\end{figure} works unchanged.
-  %
-  % The \vspace*{-\baselineskip} compensates for an asymmetry between
-  % cells: every tabular cell has \@arstrutbox at its top (one line
-  % of vertical space). A text-first cell shares that line with its
-  % first paragraph (text and strut on one line). A figure-first cell
-  % can't share — \begin{figure} breaks the strut line, putting the
-  % image one full \baselineskip below the cell top. The negative
-  % vskip pulls it back up to match the text cell's first-line position.
+  % A figure / callout in a split cell starts one line below where text
+  % in the adjacent cell does, because tabular's leading strut takes a
+  % line that text shares but block environments don't. Pull both back
+  % with a -baselineskip+3pt nudge.
+  \newcommand{\msnudgefig}{\vspace*{-\dimexpr\baselineskip-3pt\relax}}%
+  % Callouts need a deeper nudge than figures: the tcolorbox adds top
+  % padding (\mscalloutpady) inside the box, which would otherwise push
+  % the box's content below the adjacent column's first line.
+  \newcommand{\msnudgecallout}{\vspace*{-\dimexpr\baselineskip+\mscalloutpady\relax}}%
   \renewenvironment{figure}[1][]{%
-    \begingroup
-    \captionsetup{type=figure}%
-    \vspace*{-\dimexpr\baselineskip-3pt\relax}%
-    \centering
-  }{%
-    \par\endgroup
-  }%
+    \begingroup\captionsetup{type=figure}\msnudgefig\centering
+  }{\par\endgroup}%
+  % Wrap each callout: zero the tcolorbox's own before-skip so only the
+  % nudge moves the box, then prepend the nudge. \let captures the
+  % original env macros before \renewenvironment redefines them.
+  \setlength{\mscalloutbefore}{0pt}%
+  \let\msorignote\note\let\endmsorignote\endnote
+  \renewenvironment{note}{\msnudgecallout\msorignote}{\endmsorignote}%
+  \let\msorigtip\tip\let\endmsorigtip\endtip
+  \renewenvironment{tip}{\msnudgecallout\msorigtip}{\endmsorigtip}%
+  \let\msorigwarning\warning\let\endmsorigwarning\endwarning
+  \renewenvironment{warning}{\msnudgecallout\msorigwarning}{\endmsorigwarning}%
+  \let\msorigimportant\important\let\endmsorigimportant\endimportant
+  \renewenvironment{important}{\msnudgecallout\msorigimportant}{\endmsorigimportant}%
   \begin{tabular}{@{}>{\mscolsetup{\mscolwidthA}}p{\mscolwidthA}@{\hspace{\msgutter}}>{\mscolsetup{\mscolwidthB}}p{\mscolwidthB}@{}}%
 }{%
   \end{tabular}%

@@ -18,7 +18,7 @@ markset/
 ├── templates/
 │   ├── template.tex           Structural LaTeX — consumes \ms* tokens only
 │   ├── apply-theme.lua        Theme pipeline: validate → compute → emit tokens
-│   ├── divs.lua               Div / code / table / FloatBarrier handling
+│   ├── divs.lua               Div / code / table / FloatBarrier / split-* layouts
 │   ├── styleguide_md.md       Markdown authoring rules
 │   └── fonts/                 TTFs (Inter + JetBrains Mono, gitignored)
 ├── themes/
