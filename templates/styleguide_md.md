@@ -15,6 +15,8 @@ include-before: |
 ---
 ```
 
+`include-before` must use the literal `lstlisting` wrapper shown — a bare string breaks the cover render.
+
 Optional — theme customisation:
 ```yaml
 theme_overrides:
@@ -30,13 +32,20 @@ Dot-path keys address any theme field — see `themes/SCHEMA.md` for the full ma
 - Consecutive sentences combine into paragraphs in PDF
 - Use bullets for separate points that should not combine into paragraphs
 - Blank line between paragraphs or sections
-- No indentation
+- No indentation except for nested list items (2 spaces per level)
 
 ## Headings
 - Max depth: H4
 - Title Case: `# Getting Started With the API`
 - Auto-numbered (never manual)
-- No blank line after heading, blank line before next heading
+- One blank line before every heading; none after
+- Multiple H1s per document are expected — the document title comes from frontmatter, not from `#`
+
+Levels:
+- `#` H1 — top-level section, a major division of the document
+- `##` H2 — subsection within an H1
+- `###` H3 — grouping inside an H2; use only when the section needs internal landmarks
+- `####` H4 — rare; usually a signal to restructure
 
 ## Lists
 - Max 2 levels nesting
@@ -50,9 +59,11 @@ Dot-path keys address any theme field — see `themes/SCHEMA.md` for the full ma
 ```
 
 ## Tables
-Caption mandatory (`:` line immediately after, no blank):
-Use dash count to control the colomn width ratios
-Distribute based on content length (short columns = fewer dashes, long columns = more)
+- Caption mandatory — `: Caption` line directly after the table, no blank line
+- Column widths set by dash count in the header separator
+- Distribute dashes by content length (short = fewer, long = more)
+- Tables do not auto-shrink or scroll — keep content narrow enough to fit the column, or split into multiple tables
+
 ```markdown
 | Col A | Col B |
 |-------|-------|
@@ -72,9 +83,10 @@ def hello():
 ````
 
 ## ASCII Art
-- Use `ascii` class for diagrams/art
-- max width of cover ascii art: 82
-- max height of cover ascii art: 
+Two contexts — different limits:
+
+- **Cover art** (in frontmatter `include-before`) — max 60 chars wide, 16 lines tall
+- **Inline `ascii` block** — max 82 chars wide, no height limit; for diagrams in body
 
 ````markdown
 ```ascii
@@ -83,12 +95,24 @@ def hello():
    +---------+
 ```
 ````
+
 ## Callouts
-Types: `note`, `tip`, `warning`, `important`
-Never inside lists/tables or nested.
+Four types — same syntax, different visual treatment. Never inside lists/tables or nested.
 
 ```markdown
 ::: note
+Content here.
+:::
+
+::: tip
+Content here.
+:::
+
+::: warning
+Content here.
+:::
+
+::: important
 Content here.
 :::
 ```
@@ -108,7 +132,7 @@ Two variants — pick based on role:
 ![Caption](path.png){width=100%}
 ```
 
-Any width override is accepted (e.g. `{width=80%}`), but prefer the two variants above for consistency.
+Width override accepts `%` of column width (e.g. `{width=80%}`). Prefer the two variants above for consistency.
 
 Placeholder (when the image is not yet available):
 ```markdown
@@ -119,6 +143,33 @@ Dimensions: supporting | full-bleed
 :::
 ```
 
+### Two-column layouts
+Each column accepts any block content — image, text, callout, list, code. Any combination works: image + text, text + image, image + image, text + text.
+
+| Class | Left | Right |
+|---|---|---|
+| `split-50-50` | 50% | 50% |
+| `split-35-65` | 35% | 65% |
+| `split-65-35` | 65% | 35% |
+
+Syntax — outer div names the ratio, two `::: col` children carry the content:
+```markdown
+::: split-50-50
+::: col
+![Left caption](left.png)
+:::
+::: col
+![Right caption](right.png)
+:::
+:::
+```
+
+Suggestions:
+- `split-50-50` — equal pairs: comparison, two images, two notes
+- `split-35-65` / `split-65-35` — the shorter side reads as a caption or sidebar to the longer side
+
+Both columns are atomic and will not break across pages — keep each side roughly page-sized at most. Splits cannot nest — each `split-*` must contain exactly two `::: col` children, no further `split-*` inside.
+
 ## Links
 `[descriptive text](url)` - never "click here" or raw URLs
 
@@ -126,7 +177,7 @@ Dimensions: supporting | full-bleed
 - **Block quotes**: `> text` (use sparingly)
 - **Horizontal rules**: `---` (use sparingly)
 - **Footnotes**: `text[^1]` + `[^1]: Note` at end (use sparingly)
-- **Icons/Emojis**: Use simple ASCII characters
+- **Icons/Emojis**: Not used. For diagrams use ASCII art in an `ascii` code block
 
 ## Prohibited
 No raw LaTeX (`\newpage`), HTML (`<div>`), or manual styling (fonts/colors/spacing).

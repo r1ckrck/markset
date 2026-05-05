@@ -61,7 +61,7 @@ theme:
       content_proximity: 0.4  # heading_after = heading_before × this
 
     block:
-      before: 1.5          # × base, applies to callout / code / table
+      before: 1.0          # × base, applies to callout / code / table
 
     callout:
       after: 2.5
@@ -75,10 +75,14 @@ theme:
       col_sep:     2
       row_stretch: 1.45    # arraystretch ratio (absolute, not × base)
     list:
-      top_sep:  1.5
+      top_sep:  1.0
       item_sep: 1.25
     image_placeholder:
       space: 2             # before / after
+    split:
+      gutter: 4            # × base, horizontal space between columns in split-* divs
+    footnote:
+      gap: 1               # × base, horizontal gap between footnote pills in the footer
 
   # ===== Palette — chosen values =====
   palette:
@@ -89,6 +93,7 @@ theme:
     text:        { primary: "#181826", secondary: "#3d3d4d", tertiary: "#5d5d6d" }
     accent:      { primary: "#ca9ee6", muted: "#a080c0" }
     rule:        { table: "#d4d0c6" }
+    footnote:    { bg: "{{surface.bg}}" }
     callout:
       note:      { border: "#8d8d9d",            glyph: "[i]" }
       tip:       { border: "{{accent.primary}}", glyph: "*"   }
@@ -142,10 +147,13 @@ theme:
     cover:     { style: centered-ascii }   # centered-ascii | title-top | none
     header:    { content: title-version }  # title-version | title-only | section | none
     toc:       { include: true, depth: 3 }
-    numbering: { scheme: arabic, h1_numbered: false }
+    numbering: { scheme: arabic, h1_numbered: true }
+    tables:    { break_threshold: 12 }     # rows above which a table may break across pages
 
   # ===== Opt-in overrides — target output token paths =====
-  overrides: {}
+  overrides:
+    rhythm.h2_before: 6pt
+    rhythm.h3_before: 6pt
   # Examples:
   #   type.h1:                  22pt
   #   type.body_lh:             17pt

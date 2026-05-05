@@ -257,6 +257,8 @@ local function validate_dials(theme)
     'rhythm.table.after', 'rhythm.table.col_sep', 'rhythm.table.row_stretch',
     'rhythm.list.top_sep', 'rhythm.list.item_sep',
     'rhythm.image_placeholder.space',
+    'rhythm.split.gutter',
+    'rhythm.footnote.gap',
     'fonts.mono.scale', 'image.default_width',
   }
   for _, p in ipairs(num_paths) do
@@ -284,6 +286,9 @@ local function validate_dials(theme)
   if layout.numbering and layout.numbering.scheme then
     validate_enum(layout.numbering.scheme,
       { 'arabic', 'none', 'roman' }, 'layout.numbering.scheme')
+  end
+  if layout.tables and layout.tables.break_threshold ~= nil then
+    validate_number(layout.tables.break_threshold, 'layout.tables.break_threshold')
   end
 end
 
@@ -380,6 +385,8 @@ local function compute_defaults(theme)
   local tb = theme.rhythm.table or {}
   local ls = theme.rhythm.list or {}
   local ip = theme.rhythm.image_placeholder or {}
+  local sp = theme.rhythm.split or {}
+  local fn = theme.rhythm.footnote or {}
 
   r.callout_before = R(r_pt * b_before)
   r.callout_after  = R(r_pt * (tonumber(co.after) or 2.5))
@@ -396,6 +403,8 @@ local function compute_defaults(theme)
   r.list_item_sep        = R(r_pt * (tonumber(ls.item_sep) or 1.25))
   r.image_placeholder_before = R(r_pt * (tonumber(ip.space) or 2))
   r.image_placeholder_after  = R(r_pt * (tonumber(ip.space) or 2))
+  r.split_gutter             = R(r_pt * (tonumber(sp.gutter) or 4))
+  r.footnote_gap             = R(r_pt * (tonumber(fn.gap) or 1))
 
   return tokens
 end
@@ -448,6 +457,7 @@ local function validate_palette(theme)
     'palette.text.primary', 'palette.text.secondary', 'palette.text.tertiary',
     'palette.accent.primary', 'palette.accent.muted',
     'palette.rule.table',
+    'palette.footnote.bg',
     'palette.callout.note.border',
     'palette.callout.tip.border',
     'palette.callout.warning.border',
@@ -560,6 +570,12 @@ local function emit_tokens(theme, tokens)
   add(string.format('\\newcommand{\\msimagedefaultwidth}{%s}', theme.image.default_width))
   len('msimageplaceholderheight', theme.image.placeholder_height)
 
+  -- Split layouts
+  len('msgutter', r.split_gutter)
+
+  -- Footnote pill gap
+  len('msfootgap', r.footnote_gap)
+
   -- Callout glyphs
   local cp = theme.palette.callout
   add(string.format('\\newcommand{\\msglyphnote}{%s}',      cp.note.glyph))
@@ -585,6 +601,7 @@ local function emit_tokens(theme, tokens)
   color('accentprimary',      'palette.accent.primary')
   color('accentmuted',        'palette.accent.muted')
   color('ruletable',          'palette.rule.table')
+  color('footnotebg',         'palette.footnote.bg')
   color('noteborder',         'palette.callout.note.border')
   color('tipborder',          'palette.callout.tip.border')
   color('warningborder',      'palette.callout.warning.border')
@@ -667,6 +684,11 @@ function Meta(meta)
   flag('ms_numbering_roman',      num_scheme == 'roman')
   flag('ms_numbering_none',       num_scheme == 'none')
   flag('ms_h1_numbered',          h1_numbered == true)
+
+  -- Table break threshold — consumed by divs.lua, not the template
+  local tables_cfg = layout.tables or {}
+  local break_threshold = tonumber(tables_cfg.break_threshold) or 12
+  meta.ms_table_break_threshold = pandoc.MetaString(tostring(break_threshold))
 
   -- Geometry strings exposed as top-level template vars
   local function mstr(name, val) meta[name] = pandoc.MetaString(val) end

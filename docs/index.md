@@ -5,13 +5,13 @@ version: "2.0"
 date: "2026-04-21"
 include-before: |
   \begin{lstlisting}[style=coverasciiart]
-   __  __            _         _
-  |  \/  | __ _ _ __| | _____ | |_
-  | |\/| |/ _` | '__| |/ / __|| __|
-  | |  | | (_| | |  |   <\__ \| |_
-  |_|  |_|\__,_|_|  |_|\_\___/ \__|
+   __  __            _            _
+  |  \/  | __ _ _ __| | _____ ___| |_
+  | |\/| |/ _` | '__| |/ / __|___| __|
+  | |  | | (_| | |  |   <\__ \\\_| |_
+  |_|  |_|\__,_|_|  |_|\_\___/ \_|\__|
 
-     A self-contained Markdown to PDF skill
+  A self-contained Markdown to PDF skill
   \end{lstlisting}
 ---
 
@@ -187,6 +187,47 @@ When the final image isn't ready, use an image-placeholder div.
 Figure: System architecture
 Description: Block diagram showing pandoc, lua filters, and tectonic.
 Dimensions: full-bleed
+:::
+
+# Two-Column Layouts
+
+Three ratios are available — `split-50-50`, `split-35-65`, `split-65-35`. The gutter between columns is theme-driven (`rhythm.split.gutter`).
+
+## Equal Split
+
+::: split-50-50
+::: col
+![A neutral gradient at 50% width](images/sample.jpg)
+:::
+::: col
+The 50-50 split is the workhorse — two images, two callouts, or a label / definition pair sit naturally side-by-side. Both columns share equal weight.
+:::
+:::
+
+## Sidebar Left, Content Right
+
+::: split-35-65
+::: col
+**Why split layouts?**
+
+A narrow left column is great for labels, captions, or pull-style call-outs that frame a wider main panel.
+:::
+::: col
+The 35-65 ratio puts the emphasis on the right side. Use it when the right column is the "content" and the left is supporting context — a quote next to its source, a label next to its definition, a small thumbnail next to descriptive text.
+:::
+:::
+
+## Content Left, Sidebar Right
+
+::: split-65-35
+::: col
+The 65-35 ratio inverts the previous one. The main reading column sits on the left where the eye lands first; supplementary material — a small image, a definition, a side note — sits to the right.
+:::
+::: col
+**Side note**
+
+Both columns are atomic; if a row is too tall to fit on the current page, the entire row jumps to the next.
+:::
 :::
 
 # Block Quotes

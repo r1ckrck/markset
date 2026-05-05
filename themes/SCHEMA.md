@@ -46,18 +46,18 @@ filter walks three per-role tables: `size_exponents`, `size_factors`,
 | Key | Type | Default | Effect |
 |---|---|---|---|
 | `type.base` | length | `10pt` | Body size — all type scales from here |
-| `type.scale` | factor | `1.25` | Heading ratio — raised to an exponent per tier |
+| `type.scale` | factor | `1.2` | Heading ratio — raised to an exponent per tier |
 
 ### Size — exponent form
 
 For every role in `type.size_exponents`:
 **`size = base × scale^exponent`**
 
-| Role | Default | Result at base=10, scale=1.25 |
+| Role | Default | Result at base=10, scale=1.2 |
 |---|---|---|
-| `h1` | `3` | 20pt |
-| `h2` | `2` | 16pt |
-| `h3` | `1` | 13pt |
+| `h1` | `2` | 14.4pt |
+| `h2` | `1` | 12pt |
+| `h3` | `0` | 10pt |
 | `h4` | `0` | 10pt |
 
 Change an exponent to reshape the hierarchy. Add roles (e.g. `h5: -1`) to
@@ -128,6 +128,8 @@ Every rhythm value is `rhythm.base × factor`. Headings compound via
 | `rhythm.list.top_sep` | factor | `1.5` | Space before/after a list |
 | `rhythm.list.item_sep` | factor | `1.25` | Space between items |
 | `rhythm.image_placeholder.space` | factor | `2` | Before/after space for image-placeholder divs |
+| `rhythm.split.gutter` | factor | `4` | Horizontal gap between columns in `split-*` divs |
+| `rhythm.footnote.gap` | factor | `1` | Horizontal gap between footnote pills in the footer |
 
 ### Computed from the rhythm dials
 
@@ -158,6 +160,8 @@ directly — change a dial and they cascade. Override any of them in
 | `rhythm.list_item_sep` | base × list.item_sep | 5pt |
 | `rhythm.image_placeholder_before` | base × image_placeholder.space | 8pt |
 | `rhythm.image_placeholder_after` | base × image_placeholder.space | 8pt |
+| `rhythm.split_gutter` | base × split.gutter | 16pt |
+| `rhythm.footnote_gap` | base × footnote.gap | 4pt |
 
 ---
 
@@ -262,6 +266,7 @@ Named variants — change structure, not just values.
 | `layout.toc.depth` | integer | 1–4 | `3` |
 | `layout.numbering.scheme` | enum | `arabic`, `roman`, `none` | `arabic` |
 | `layout.numbering.h1_numbered` | bool | `true` / `false` | `false` |
+| `layout.tables.break_threshold` | integer | row count above which a table is allowed to break across pages; at or below it stays on one page | `12` |
 
 ---
 

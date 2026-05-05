@@ -102,7 +102,8 @@ $if(ms_header_section)$
 \fancyhead[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\color{texttertiary}\leftmark}
 $endif$
 
-\fancyfoot[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\color{texttertiary}\thepage}
+\fancyfoot[L]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\strut\msrenderfootnotes}
+\fancyfoot[R]{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont\strut\color{texttertiary}\thepage}
 
 \fancypagestyle{firstpage}{
   \fancyhf{}
@@ -116,23 +117,23 @@ $endif$
 % heading font size.
 \titleformat{\section}
   {\fontsize{\msfonthone}{\msfonthonelh}\selectfont\bfseries\color{textprimary}}
-  {}{0pt}{}
+  {\thesection}{0.2em}{}
   [\vspace{-0.55em}\rule{\textwidth}{\msrulethin}]
 \titlespacing*{\section}{0pt}{\mshonebefore}{\mshoneafter}
 
 \titleformat{\subsection}
   {\fontsize{\msfonthtwo}{\msfonthtwolh}\selectfont\bfseries\color{textprimary}}
-  {\thesubsection}{0.5em}{}
+  {\thesubsection}{0.3em}{}
 \titlespacing*{\subsection}{0pt}{\mshtwobefore}{\mshtwoafter}
 
 \titleformat{\subsubsection}
   {\fontsize{\msfonththree}{\msfonththreelh}\selectfont\bfseries\color{textprimary}}
-  {\thesubsubsection}{0.5em}{}
+  {\thesubsubsection}{0.3em}{}
 \titlespacing*{\subsubsection}{0pt}{\mshthreebefore}{\mshthreeafter}
 
 \titleformat{\paragraph}
   {\fontsize{\msfonthfour}{\msfonthfourlh}\selectfont\bfseries\color{textprimary}}
-  {\theparagraph}{0.5em}{}
+  {\theparagraph}{0.3em}{}
 \titlespacing*{\paragraph}{0pt}{\mshfourbefore}{\mshfourafter}
 
 % Orphan/widow + section penalty
@@ -162,35 +163,60 @@ $if(ms_numbering_none)$
 $endif$
 
 % ---- Table of Contents -----------------------------------------------------
+% H1 is the loud entry: bold, dotted leader, page number.
+% H2 / H3 are quiet — indented, no leader, no page number (tocloft's
+% \cftpagenumbersoff suppresses the page column entirely).
 \renewcommand{\cfttoctitlefont}{\fontsize{\msfonttoctitle}{\msfonttoctitlelh}\selectfont\bfseries\color{textprimary}}
 
-\renewcommand{\cftsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
+% H1 (section) — number prints at natural width (not in a fixed-width box),
+% with a constant 0.3em gap after it. Single and double digits look identical.
+% This is done by redefining \l@section to locally override \numberline so
+% the number isn't trapped in tocloft's fixed-width \cftsecnumwidth hbox.
+\renewcommand{\cftsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\bfseries\color{textprimary}}
 \renewcommand{\cftsecpagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textsecondary}}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
 \makeatletter
-\renewcommand{\l@section}[2]{}  % H1 is document title; hide from TOC
+\renewcommand{\l@section}[2]{%
+  \par\addvspace{\cftbeforesecskip}%
+  \begingroup
+    \renewcommand{\numberline}[1]{##1\hspace*{0.3em}}%
+    \leftskip\z@ \rightskip\@tocrmarg \parfillskip -\rightskip
+    \parindent\z@ \@afterindenttrue
+    \interlinepenalty\@M
+    \leavevmode
+    \noindent{\cftsecfont #1}\nobreak%
+    \cftsecleader\nobreak%
+    \hb@xt@\@pnumwidth{\hfil\cftsecpagefont #2}\par%
+  \endgroup
+}
 \makeatother
 
-\renewcommand{\cftsubsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{accentmuted}}
-\renewcommand{\cftsubsecpagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
-\renewcommand{\cftsecleader}{\hfill}
+% H2 (subsection)
+\renewcommand{\cftsubsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textsecondary}}
 \renewcommand{\cftsubsecleader}{\hfill}
+\cftpagenumbersoff{subsec}
 
-\renewcommand{\cftsubsubsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{accentmuted}}
-\renewcommand{\cftsubsubsecpagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
-\renewcommand{\cftsubsubsecleader}{\cftdotfill{\cftdotsep}}
+% H3 (subsubsection)
+\renewcommand{\cftsubsubsecfont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{texttertiary}}
+\renewcommand{\cftsubsubsecleader}{\hfill}
+\cftpagenumbersoff{subsubsec}
 
+% H4 (paragraph) — kept off by tocdepth, but styled in case it's ever shown
 \renewcommand{\cftparafont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{accentmuted}}
-\renewcommand{\cftparapagefont}{\fontsize{\msfonttocentry}{\msfonttocentrylh}\selectfont\color{textprimary}}
-\renewcommand{\cftparaleader}{\cftdotfill{\cftdotsep}}
+\cftpagenumbersoff{para}
+\renewcommand{\cftparaleader}{\hfill}
 
-\setlength{\cftsecnumwidth}{2em}
-\setlength{\cftsubsecnumwidth}{2em}
-\setlength{\cftsubsecindent}{0pt}
-\setlength{\cftsubsubsecindent}{2em}
-\setlength{\cftsubsubsecnumwidth}{3em}
-\setlength{\cftparaindent}{4em}
-\setlength{\cftparanumwidth}{3.5em}
-\setlength{\cftbeforesecskip}{0pt}
+% Indent + spacing
+% Each level's number column starts where the parent level's text begins.
+% Numwidths sized to fit the number plus a tight ~0.3em gutter.
+\setlength{\cftsecnumwidth}{0pt}    % unused — H1 layout is custom (see \l@section above)
+\setlength{\cftsubsecindent}{1.4em}
+\setlength{\cftsubsecnumwidth}{1.8em}
+\setlength{\cftsubsubsecindent}{3.2em}
+\setlength{\cftsubsubsecnumwidth}{2.4em}
+\setlength{\cftparaindent}{5.6em}
+\setlength{\cftparanumwidth}{3em}
+\setlength{\cftbeforesecskip}{4pt}
 \setcounter{tocdepth}{3}
 
 % ---- Tables ----------------------------------------------------------------
@@ -312,6 +338,72 @@ $endif$
   borderline={1pt}{0pt}{placeholderborder, dashed}
 }
 
+% ---- Two-column split layouts ----------------------------------------------
+% Used by divs.lua for ::: split-50-50 / split-35-65 / split-65-35.
+%
+% Built on tabular with p{} columns rather than minipages. Reason: tabular
+% cells are top-aligned at the cell's top edge, not at the first-content
+% baseline. With minipages this matters — a figure-first column and a
+% text-first column have different first-content baselines, so they can't
+% visually align under [t] AND keep the outer block spacing clean. Tabular
+% sidesteps that entirely.
+%
+% divs.lua emits \begin{mssplitrow}{Lwidth}{Rwidth}, the left column
+% content, an `&`, the right column content, then \end{mssplitrow}.
+% Pandoc renders the inner blocks normally (so images/lists/etc work).
+%
+% \msgutter (set in apply-theme.lua from rhythm.split.gutter) is the
+% horizontal gap between columns. \tabcolsep is zeroed so the only
+% horizontal space inside the row is the explicit @{\hspace{\msgutter}}.
+% Pre-computed cell widths — needed because tabular's preamble parser
+% won't reliably expand \dimexpr inside p{}.
+\newlength{\mscolwidthA}
+\newlength{\mscolwidthB}
+
+% \mscolsetup runs at the start of every column cell. Image-related defaults
+% need the explicit cell width because \linewidth inside a p{} cell may not
+% match the cell width.
+\newcommand{\mscolsetup}[1]{%
+  \setlength{\intextsep}{0pt}%
+  \setlength{\abovecaptionskip}{2pt}%
+  \setkeys{Gin}{width=#1,keepaspectratio}%
+}
+\newenvironment{mssplitrow}[2]{%
+  \par\nobreak
+  \begingroup
+  \setlength{\mscolwidthA}{#1}%
+  \setlength{\mscolwidthB}{#2}%
+  \setlength{\tabcolsep}{0pt}%
+  \renewcommand{\arraystretch}{1}%
+  % Inside a tabular cell, the float-package's [H] figure environment
+  % breaks the cell boundary — its internal box machinery doesn't honour
+  % the surrounding column width. Locally redefine `figure` to a plain
+  % non-floating wrapper (still typesets centered, still allows \caption
+  % via \captionsetup{type=figure}). Pandoc's emit of \begin{figure}
+  % \centering\includegraphics\caption\end{figure} works unchanged.
+  %
+  % The \vspace*{-\baselineskip} compensates for an asymmetry between
+  % cells: every tabular cell has \@arstrutbox at its top (one line
+  % of vertical space). A text-first cell shares that line with its
+  % first paragraph (text and strut on one line). A figure-first cell
+  % can't share — \begin{figure} breaks the strut line, putting the
+  % image one full \baselineskip below the cell top. The negative
+  % vskip pulls it back up to match the text cell's first-line position.
+  \renewenvironment{figure}[1][]{%
+    \begingroup
+    \captionsetup{type=figure}%
+    \vspace*{-\dimexpr\baselineskip-3pt\relax}%
+    \centering
+  }{%
+    \par\endgroup
+  }%
+  \begin{tabular}{@{}>{\mscolsetup{\mscolwidthA}}p{\mscolwidthA}@{\hspace{\msgutter}}>{\mscolsetup{\mscolwidthB}}p{\mscolwidthB}@{}}%
+}{%
+  \end{tabular}%
+  \endgroup
+  \par\addvspace{\msspacemd}%
+}
+
 % ---- Default image sizing --------------------------------------------------
 \setkeys{Gin}{width=\msimagedefaultwidth\linewidth,keepaspectratio}
 
@@ -338,6 +430,7 @@ $endif$
   font={footnotesize,color=textsecondary},
   labelfont={footnotesize,color=textsecondary},
   textfont={footnotesize,it,color=textsecondary},
+  skip=2pt,
 }
 
 % ---- Links -----------------------------------------------------------------
@@ -374,14 +467,33 @@ $endif$
 }
 \renewenvironment{quote}{\begin{quotebox}}{\end{quotebox}}
 
-% ---- Footnotes -------------------------------------------------------------
-\renewcommand{\footnoterule}{%
-  \kern-3pt
-  {\color{ruletable}\hrule width 30mm height \msrulethin}
-  \kern 2.6pt
-}
-\renewcommand{\thefootnote}{\textcolor{accentprimary}{\arabic{footnote}}}
+% ---- Footnotes (horizontal pills in the footer) ----------------------------
+\renewcommand{\footnoterule}{}
+\renewcommand{\thefootnote}{\arabic{footnote}}
 \renewcommand{\footnotesize}{\fontsize{\msfontheader}{\msfontheaderlh}\selectfont}
+
+\newcommand{\msfootpill}[2]{%
+  {\fboxsep=2pt
+   \colorbox{footnotebg}{%
+     \textcolor{accentprimary}{#1}\hspace{3pt}\textcolor{textsecondary}{#2}%
+   }}%
+}
+
+\newcommand{\msfootnotebuffer}{}
+
+\makeatletter
+\renewcommand{\footnote}[1]{%
+  \stepcounter{footnote}%
+  \textsuperscript{\textcolor{accentprimary}{\thefootnote}}%
+  \protected@xdef\msfootnotebuffer{\msfootnotebuffer
+    \noexpand\msfootpill{\thefootnote}{\unexpanded{#1}}%
+    \noexpand\hspace{\noexpand\msfootgap}}%
+}
+\makeatother
+
+\newcommand{\msrenderfootnotes}{\msfootnotebuffer}
+
+\AtBeginShipout{\gdef\msfootnotebuffer{}}
 
 % Counter for tables without captions (Pandoc generates \LTcaptype{none})
 \newcounter{none}

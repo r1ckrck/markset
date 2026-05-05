@@ -169,7 +169,7 @@ export PATH="$TMPBIN:$PATH"
   -V fontdir="$SKILL_DIR/templates/fonts" \
   --resource-path="$(dirname "$INPUT"):." \
   --toc \
-  --toc-depth=2 \
+  --toc-depth=3 \
   --number-sections \
   --listings \
   -V colorlinks=true
